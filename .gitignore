@@ -1,0 +1,39 @@
+# Build output
+bin/
+obj/
+artifacts/
+
+# IDE and editor state
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Local packages and restore caches
+LocalNuGet/
+NuGet.temp.config
+packages/
+
+# Runtime/user data
+*.log
+*.tmp
+*.bak
+*.wlb
+connections.wlb
+editor-session.json
+localization-dictionary.json
+
+# Published archives and local distribution bundles
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+
+# OS metadata
+Thumbs.db
+Desktop.ini
+.DS_Store

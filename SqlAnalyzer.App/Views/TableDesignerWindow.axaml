@@ -1,0 +1,307 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="SqlAnalyzer.App.Views.TableDesignerWindow"
+        x:CompileBindings="False"
+        Width="1240"
+        Height="800"
+        MinWidth="1080"
+        MinHeight="700"
+        WindowStartupLocation="CenterOwner"
+        Background="#F5F7FA"
+        Title="表设计">
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Border Grid.Row="0"
+            Background="#F8FAFC"
+            BorderBrush="#D7DCE5"
+            BorderThickness="0,0,0,1"
+            Padding="16,12">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Spacing="4">
+          <TextBlock x:Name="TitleTextBlock"
+                     FontSize="18"
+                     FontWeight="SemiBold"
+                     Foreground="#1F2937"/>
+          <TextBlock x:Name="DescriptionTextBlock"
+                     FontSize="11"
+                     Foreground="#64748B"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
+        <Border x:Name="SaveModeBadge"
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                Padding="10,4"
+                CornerRadius="12"
+                Background="#FEF3C7">
+          <TextBlock x:Name="SaveModeTextBlock"
+                     FontSize="11"
+                     FontWeight="SemiBold"
+                     Foreground="#92400E"/>
+        </Border>
+      </Grid>
+    </Border>
+
+    <Border Grid.Row="1"
+            Background="#FFFFFF"
+            BorderBrush="#D7DCE5"
+            BorderThickness="0,0,0,1"
+            Padding="12,8">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
+        <Button x:Name="SaveButton"
+                Content="保存"
+                Margin="0,0,8,0"
+                Click="SaveButton_Click"/>
+        <Button Grid.Column="1"
+                Content="添加字段"
+                Margin="0,0,8,0"
+                Click="AddColumnButton_Click"/>
+        <Button Grid.Column="2"
+                Content="删除字段"
+                Margin="0,0,8,0"
+                Click="RemoveColumnButton_Click"/>
+        <Button Grid.Column="3"
+                Content="切换主键"
+                Margin="0,0,8,0"
+                Click="TogglePrimaryKeyButton_Click"/>
+        <Border Grid.Column="4"
+                Width="1"
+                Height="24"
+                Margin="6,0,12,0"
+                Background="#D7DCE5"/>
+        <StackPanel Grid.Column="5"
+                    Orientation="Horizontal"
+                    Spacing="6"
+                    VerticalAlignment="Center">
+          <TextBlock Text="对象:"
+                     Foreground="#475569"
+                     VerticalAlignment="Center"/>
+          <TextBlock x:Name="QualifiedTableNameTextBlock"
+                     FontWeight="SemiBold"
+                     Foreground="#1E293B"
+                     VerticalAlignment="Center"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <TabControl x:Name="DesignerTabs"
+                Grid.Row="2"
+                Margin="12,10,12,12"
+                SelectionChanged="DesignerTabs_SelectionChanged">
+      <TabItem Header="字段">
+        <Grid RowDefinitions="Auto,*"
+              Margin="4">
+          <Border Background="#EDF4FF"
+                  BorderBrush="#D7E3F7"
+                  BorderThickness="1"
+                  CornerRadius="6"
+                  Padding="10,8"
+                  Margin="0,0,0,10">
+            <TextBlock Text="字段页支持维护字段名、数据类型、长度、精度、小数位、是否非空、主键标记和字段注释。字段类型会根据当前数据库类型提供下拉选择。"
+                       FontSize="11"
+                       Foreground="#335A8A"
+                       TextWrapping="Wrap"/>
+          </Border>
+          <DataGrid x:Name="ColumnsGrid"
+                    Grid.Row="1"
+                    AutoGenerateColumns="False"
+                    CanUserResizeColumns="True"
+                    CanUserSortColumns="False"
+                    GridLinesVisibility="All"
+                    HeadersVisibility="All"
+                    SelectionChanged="ColumnsGrid_SelectionChanged"
+                    CellEditEnded="ColumnsGrid_CellEditEnded">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="220"/>
+              <DataGridTemplateColumn Header="类型" Width="220">
+                <DataGridTemplateColumn.CellTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding DataType}"
+                               ToolTip.Tip="{Binding SelectedDataTypeOption.Description}"/>
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellTemplate>
+                <DataGridTemplateColumn.CellEditingTemplate>
+                  <DataTemplate>
+                    <ComboBox ItemsSource="{Binding AvailableDataTypeOptions}"
+                              SelectedItem="{Binding SelectedDataTypeOption, Mode=TwoWay}"
+                              SelectionChanged="ColumnTypeComboBox_SelectionChanged"
+                              MinWidth="200">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding Name}"/>
+                            <TextBlock Text="{Binding Description}"
+                                       FontSize="10"
+                                       Foreground="#64748B"
+                                       TextTrimming="CharacterEllipsis"/>
+                          </StackPanel>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </DataTemplate>
+                </DataGridTemplateColumn.CellEditingTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTextColumn Header="长度" Binding="{Binding Length}" Width="90"/>
+              <DataGridTextColumn Header="精度" Binding="{Binding Precision}" Width="80"/>
+              <DataGridTextColumn Header="小数位" Binding="{Binding Scale}" Width="90"/>
+              <DataGridCheckBoxColumn Header="非空" Binding="{Binding IsNotNull}" Width="80"/>
+              <DataGridTextColumn Header="键" Binding="{Binding KeyMarker}" IsReadOnly="True" Width="70"/>
+              <DataGridTextColumn Header="注释" Binding="{Binding Comment}" Width="*"/>
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="索引">
+        <Grid Margin="4">
+          <DataGrid x:Name="IndexesGrid"
+                    AutoGenerateColumns="False"
+                    CanUserResizeColumns="True"
+                    GridLinesVisibility="All"
+                    IsReadOnly="True">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="240"/>
+              <DataGridTextColumn Header="列" Binding="{Binding Columns}" Width="*"/>
+              <DataGridCheckBoxColumn Header="唯一" Binding="{Binding IsUnique}" Width="80"/>
+              <DataGridTextColumn Header="类型" Binding="{Binding IndexType}" Width="160"/>
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="外键">
+        <Grid Margin="4">
+          <DataGrid x:Name="ForeignKeysGrid"
+                    AutoGenerateColumns="False"
+                    CanUserResizeColumns="True"
+                    GridLinesVisibility="All"
+                    IsReadOnly="True">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="220"/>
+              <DataGridTextColumn Header="本地列" Binding="{Binding Columns}" Width="*"/>
+              <DataGridTextColumn Header="引用表" Binding="{Binding ReferenceTable}" Width="220"/>
+              <DataGridTextColumn Header="引用列" Binding="{Binding ReferenceColumns}" Width="220"/>
+              <DataGridTextColumn Header="删除规则" Binding="{Binding DeleteRule}" Width="120"/>
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="唯一键">
+        <Grid Margin="4">
+          <DataGrid x:Name="UniqueKeysGrid"
+                    AutoGenerateColumns="False"
+                    CanUserResizeColumns="True"
+                    GridLinesVisibility="All"
+                    IsReadOnly="True">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="220"/>
+              <DataGridTextColumn Header="列" Binding="{Binding Columns}" Width="*"/>
+              <DataGridTextColumn Header="类型" Binding="{Binding IndexType}" Width="140"/>
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="检查">
+        <Grid Margin="4">
+          <DataGrid x:Name="ChecksGrid"
+                    AutoGenerateColumns="False"
+                    CanUserResizeColumns="True"
+                    GridLinesVisibility="All"
+                    IsReadOnly="True">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="220"/>
+              <DataGridTextColumn Header="表达式" Binding="{Binding Expression}" Width="*"/>
+              <DataGridCheckBoxColumn Header="启用" Binding="{Binding IsEnabled}" Width="80"/>
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="触发器">
+        <Grid Margin="4">
+          <DataGrid x:Name="TriggersGrid"
+                    AutoGenerateColumns="False"
+                    CanUserResizeColumns="True"
+                    GridLinesVisibility="All"
+                    IsReadOnly="True">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="220"/>
+              <DataGridTextColumn Header="触发类型" Binding="{Binding TriggerType}" Width="180"/>
+              <DataGridTextColumn Header="事件" Binding="{Binding EventName}" Width="180"/>
+              <DataGridTextColumn Header="状态" Binding="{Binding Status}" Width="100"/>
+              <DataGridTextColumn Header="说明" Binding="{Binding BodyPreview}" Width="*"/>
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="选项">
+        <Grid Margin="4">
+          <DataGrid x:Name="OptionsGrid"
+                    AutoGenerateColumns="False"
+                    CanUserResizeColumns="True"
+                    GridLinesVisibility="All">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="选项" Binding="{Binding Name}" Width="220" IsReadOnly="True"/>
+              <DataGridTextColumn Header="值" Binding="{Binding Value}" Width="*"/>
+            </DataGrid.Columns>
+          </DataGrid>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="注释">
+        <Grid Margin="4"
+              RowDefinitions="Auto,*">
+          <TextBlock Text="表注释"
+                     Margin="0,0,0,8"
+                     Foreground="#475569"/>
+          <TextBox x:Name="CommentTextBox"
+                   Grid.Row="1"
+                   AcceptsReturn="True"
+                   TextWrapping="Wrap"
+                   TextChanged="CommentTextBox_TextChanged"/>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="SQL 预览">
+        <Grid Margin="4"
+              RowDefinitions="Auto,*">
+          <Border Background="#F8FAFC"
+                  BorderBrush="#E2E8F0"
+                  BorderThickness="1"
+                  CornerRadius="6"
+                  Padding="10,8"
+                  Margin="0,0,0,10">
+            <TextBlock Text="支持直接保存的数据库会在保存时执行结构变更；其他数据库以预览模式打开，可查看脚本但不会直接写库。"
+                       FontSize="11"
+                       Foreground="#475569"
+                       TextWrapping="Wrap"/>
+          </Border>
+          <TextBox x:Name="SqlPreviewTextBox"
+                   Grid.Row="1"
+                   AcceptsReturn="True"
+                   IsReadOnly="True"
+                   FontFamily="Consolas"
+                   TextWrapping="NoWrap"/>
+        </Grid>
+      </TabItem>
+    </TabControl>
+
+    <Border Grid.Row="3"
+            Background="#F9FBFD"
+            BorderBrush="#D7DCE5"
+            BorderThickness="0,1,0,0"
+            Padding="12,10">
+      <StackPanel Orientation="Horizontal"
+                  HorizontalAlignment="Right"
+                  Spacing="8">
+        <Button Content="取消" Click="CancelButton_Click"/>
+        <Button x:Name="FooterSaveButton"
+                Content="保存结构"
+                Click="SaveButton_Click"/>
+      </StackPanel>
+    </Border>
+  </Grid>
+</Window>

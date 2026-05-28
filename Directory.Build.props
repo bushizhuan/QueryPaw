@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <Authors>长安员外</Authors>
+    <Company>长安员外</Company>
+    <Copyright>Copyright © 2026 长安员外</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+</Project>

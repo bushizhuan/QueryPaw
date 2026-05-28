@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SqlAnalyzer.App.Views.CommentSqlPreviewWindow"
+        Width="960"
+        Height="680"
+        MinWidth="760"
+        MinHeight="520"
+        WindowStartupLocation="CenterOwner"
+        Title="内容预览"
+        Background="#F8FAFC">
+  <Grid RowDefinitions="*,Auto" Margin="12">
+    <TextBox x:Name="SqlPreviewTextBox"
+             AcceptsReturn="True"
+             IsReadOnly="True"
+             TextWrapping="NoWrap"
+             FontFamily="Consolas"
+             FontSize="12"/>
+
+    <StackPanel Grid.Row="1"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Margin="0,12,0,0"
+                Spacing="8">
+      <Button x:Name="CopyButton"
+              Content="复制内容"
+              Click="CopyButton_Click"/>
+      <Button x:Name="CloseButton"
+              Content="关闭"
+              Click="CloseButton_Click"/>
+    </StackPanel>
+  </Grid>
+</Window>

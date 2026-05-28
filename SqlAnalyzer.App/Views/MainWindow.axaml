@@ -1,0 +1,1925 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SqlAnalyzer.App.ViewModels"
+        xmlns:models="using:SqlAnalyzer.Core.Models"
+        xmlns:appModels="using:SqlAnalyzer.App.Models"
+        xmlns:controls="using:SqlAnalyzer.App.Controls"
+        xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="SqlAnalyzer.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/software-logo.ico"
+        Title="{Binding ApplicationTitle}"
+        MinWidth="1280"
+        MinHeight="820"
+        FontSize="11"
+        ShowInTaskbar="True"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#F3F4F6"
+        KeyDown="Window_KeyDown"
+        KeyUp="Window_KeyUp">
+  <Window.Styles>
+    <Style Selector="Menu">
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+    <Style Selector="ContextMenu">
+      <Setter Property="Background" Value="#FFFFFF"/>
+      <Setter Property="BorderBrush" Value="#C8DFF5"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="6"/>
+      <Setter Property="MinWidth" Value="148"/>
+    </Style>
+    <Style Selector="MenuItem">
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="Foreground" Value="#1E293B"/>
+      <Setter Property="Padding" Value="10,5"/>
+      <Setter Property="MinHeight" Value="28"/>
+    </Style>
+    <Style Selector="MenuItem:pointerover">
+      <Setter Property="Background" Value="#EAF5FF"/>
+      <Setter Property="Foreground" Value="#0F4D82"/>
+    </Style>
+    <Style Selector="MenuItem:pressed">
+      <Setter Property="Background" Value="#DCEEFF"/>
+      <Setter Property="Foreground" Value="#0B4676"/>
+    </Style>
+    <Style Selector="MenuItem:disabled">
+      <Setter Property="Foreground" Value="#94A3B8"/>
+    </Style>
+    <Style Selector="TabControl">
+      <Setter Property="FontSize" Value="11"/>
+    </Style>
+    <Style Selector="TabItem">
+      <Setter Property="Background" Value="#F4F5F7"/>
+      <Setter Property="BorderBrush" Value="#D8DADF"/>
+      <Setter Property="BorderThickness" Value="1,1,1,0"/>
+      <Setter Property="Padding" Value="12,4"/>
+      <Setter Property="Margin" Value="0,0,3,0"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="CornerRadius" Value="6,6,0,0"/>
+    </Style>
+    <Style Selector="TabItem:pointerover">
+      <Setter Property="Background" Value="#F9FAFB"/>
+    </Style>
+    <Style Selector="TabItem:selected">
+      <Setter Property="Background" Value="#FFFFFF"/>
+      <Setter Property="BorderBrush" Value="#9FC0E9"/>
+    </Style>
+    <Style Selector="Button">
+      <Setter Property="FontSize" Value="11"/>
+    </Style>
+    <Style Selector="ComboBox">
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="MinHeight" Value="26"/>
+    </Style>
+    <Style Selector="ComboBoxItem">
+      <Setter Property="Padding" Value="10,6"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="Foreground" Value="#1E293B"/>
+    </Style>
+    <Style Selector="ComboBoxItem:pointerover">
+      <Setter Property="Background" Value="#EAF5FF"/>
+      <Setter Property="Foreground" Value="#0F4D82"/>
+    </Style>
+    <Style Selector="ComboBoxItem:selected">
+      <Setter Property="Background" Value="#DCEEFF"/>
+      <Setter Property="Foreground" Value="#0B4676"/>
+    </Style>
+    <Style Selector="TextBox">
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="MinHeight" Value="26"/>
+    </Style>
+    <Style Selector="DataGridColumnHeader">
+      <Setter Property="Background" Value="#EEF3F8"/>
+      <Setter Property="Foreground" Value="#0F172A"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="BorderBrush" Value="#C3CEDA"/>
+      <Setter Property="BorderThickness" Value="0,0,1,1"/>
+      <Setter Property="Padding" Value="6,4"/>
+    </Style>
+    <Style Selector="DataGridCell">
+      <Setter Property="BorderBrush" Value="#E5E7EB"/>
+      <Setter Property="BorderThickness" Value="0,0,1,1"/>
+      <Setter Property="Padding" Value="6,2"/>
+    </Style>
+    <Style Selector="Border.result-navigation-bar">
+      <Setter Property="Background" Value="#F8FBFF"/>
+      <Setter Property="BorderBrush" Value="#DCEAF7"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+      <Setter Property="Padding" Value="8,3"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="MaxHeight" Value="32"/>
+    </Style>
+    <Style Selector="Button.result-navigation-chip">
+      <Setter Property="Background" Value="#FFFFFF"/>
+      <Setter Property="BorderBrush" Value="#B9D8F4"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="7"/>
+      <Setter Property="Foreground" Value="#155A91"/>
+      <Setter Property="Padding" Value="10,2"/>
+      <Setter Property="MinHeight" Value="24"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+    <Style Selector="Button.result-navigation-action">
+      <Setter Property="Background" Value="#EEF7FF"/>
+      <Setter Property="BorderBrush" Value="#CFE4F8"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="7"/>
+      <Setter Property="Foreground" Value="#1F5F9B"/>
+      <Setter Property="Padding" Value="9,2"/>
+      <Setter Property="MinHeight" Value="24"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+    <Style Selector="Button.result-navigation-chip:pointerover">
+      <Setter Property="Background" Value="#EAF5FF"/>
+      <Setter Property="BorderBrush" Value="#8FC5F4"/>
+    </Style>
+    <Style Selector="Button.result-navigation-action:pointerover">
+      <Setter Property="Background" Value="#EAF5FF"/>
+      <Setter Property="BorderBrush" Value="#8FC5F4"/>
+    </Style>
+    <Style Selector="Button.result-navigation-chip:pressed">
+      <Setter Property="Background" Value="#DCEEFF"/>
+      <Setter Property="BorderBrush" Value="#78B6EA"/>
+    </Style>
+    <Style Selector="Button.result-navigation-action:pressed">
+      <Setter Property="Background" Value="#DCEEFF"/>
+      <Setter Property="BorderBrush" Value="#78B6EA"/>
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Border Grid.Row="0" Background="#F8FBFF" BorderBrush="#DDEBF7" BorderThickness="0,0,0,1">
+      <StackPanel Orientation="Horizontal" Margin="8,3" Spacing="4">
+        <Button x:Name="FileMenuButton" Content="{Binding UiText.FileMenu}" Classes="menu-button" Click="TopMenuButton_Click">
+          <Button.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.NewQuery}" Click="NewQueryButton_Click"/>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.CommentMaintenance}" IsEnabled="{Binding $parent[Window].DataContext.CanOpenFocusedCommentMaintenance}" Click="OpenCommentMaintenanceButton_Click"/>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.DataModel}" IsEnabled="{Binding $parent[Window].DataContext.CanOpenFocusedModelDiagram}" Click="OpenModelDiagramButton_Click"/>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.OpenFile}" Click="OpenFileMenuItem_Click"/>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.SaveFile}" Click="SaveFileMenuItem_Click"/>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.SaveFileAs}" Click="SaveFileAsMenuItem_Click"/>
+              <MenuItem x:Name="RecentFilesMenuItem" Header="{Binding $parent[Window].DataContext.UiText.RecentFiles}"/>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.QueryHistory}" Click="OpenQueryHistoryButton_Click"/>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.ConnectionManager}" Click="ConnectionManagerButton_Click"/>
+              <Separator/>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.ImportConnectionsMenu}" Click="ImportConnectionsButton_Click"/>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.ExportConnectionsMenu}" Click="ExportConnectionsButton_Click"/>
+              <Separator/>
+            </ContextMenu>
+          </Button.ContextMenu>
+        </Button>
+        <Button x:Name="EditMenuButton" Content="{Binding UiText.EditMenu}" Classes="menu-button" Click="TopMenuButton_Click">
+          <Button.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.Find}" Click="FindButton_Click"/>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.Replace}" Click="ReplaceButton_Click"/>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.Format}" Click="FormatButton_Click"/>
+            </ContextMenu>
+          </Button.ContextMenu>
+        </Button>
+        <Button x:Name="ViewMenuButton" Content="{Binding UiText.ViewMenu}" Classes="menu-button" Click="TopMenuButton_Click">
+          <Button.ContextMenu>
+            <ContextMenu ItemsSource="{Binding LanguageOptions}">
+              <ContextMenu.ItemTemplate>
+                <DataTemplate DataType="appModels:LanguageOption">
+                  <MenuItem Header="{Binding DisplayName}" Tag="{Binding Code}" Click="LanguageMenuItem_Click"/>
+                </DataTemplate>
+              </ContextMenu.ItemTemplate>
+            </ContextMenu>
+          </Button.ContextMenu>
+        </Button>
+        <Button x:Name="HelpMenuButton" Content="{Binding UiText.HelpMenu}" Classes="menu-button" Click="TopMenuButton_Click">
+          <Button.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{Binding $parent[Window].DataContext.UiText.About}" Click="AboutMenuItem_Click"/>
+            </ContextMenu>
+          </Button.ContextMenu>
+        </Button>
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="1" Background="#F7F7F8" BorderBrush="#D8DADF" BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="Auto,1,Auto,1,Auto,*" Margin="8,3">
+        <StackPanel Orientation="Horizontal" Spacing="4">
+          <Button Classes="nav-toolbar" Click="ConnectionManagerButton_Click">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+              <Border Classes="tool-glyph">
+                <controls:BlueIcon Kind="Database"
+                                   Width="18"
+                                   Height="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+              </Border>
+              <TextBlock Text="{Binding UiText.ConnectionManager}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button Classes="nav-toolbar" Click="NewQueryButton_Click">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+              <Border Classes="tool-glyph">
+                <controls:BlueIcon Kind="Sql"
+                                   Width="18"
+                                   Height="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+              </Border>
+              <TextBlock Text="{Binding UiText.NewQuery}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button Classes="nav-toolbar" Click="OpenQueryHistoryButton_Click">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+              <Border Classes="tool-glyph">
+                <controls:BlueIcon Kind="History"
+                                   Width="18"
+                                   Height="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+              </Border>
+              <TextBlock Text="{Binding UiText.QueryHistory}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button Classes="nav-toolbar" Click="OpenCommentMaintenanceButton_Click" IsEnabled="{Binding CanOpenFocusedCommentMaintenance}">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+              <Border Classes="tool-glyph">
+                <controls:BlueIcon Kind="Comment"
+                                   Width="18"
+                                   Height="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+              </Border>
+              <TextBlock Text="{Binding UiText.CommentMaintenance}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button Classes="nav-toolbar" Click="OpenModelDiagramButton_Click" IsEnabled="{Binding CanOpenFocusedModelDiagram}">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+              <Border Classes="tool-glyph">
+                <controls:BlueIcon Kind="Diagram"
+                                   Width="18"
+                                   Height="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+              </Border>
+              <TextBlock Text="{Binding UiText.DataModel}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+
+        <Border Grid.Column="1" Width="1" Background="#D8DADF" Margin="8,0"/>
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+          <Button Classes="nav-toolbar" Click="RunButton_Click">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+              <Border Classes="tool-glyph">
+                <controls:BlueIcon Kind="Run"
+                                   Width="18"
+                                   Height="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+              </Border>
+              <TextBlock Text="{Binding UiText.Run}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button Classes="nav-toolbar" Click="PlanButton_Click">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+              <Border Classes="tool-glyph">
+                <controls:BlueIcon Kind="Plan"
+                                   Width="18"
+                                   Height="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+              </Border>
+              <TextBlock Text="{Binding UiText.Plan}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button Classes="nav-toolbar" Click="FormatButton_Click">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+              <Border Classes="tool-glyph">
+                <controls:BlueIcon Kind="Format"
+                                   Width="18"
+                                   Height="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+              </Border>
+              <TextBlock Text="{Binding UiText.Format}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+
+        <Border Grid.Column="3" Width="1" Background="#D8DADF" Margin="8,0"/>
+
+        <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4">
+          <Button Classes="nav-toolbar" Click="FindButton_Click">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+              <Border Classes="tool-glyph">
+                <controls:BlueIcon Kind="Search"
+                                   Width="18"
+                                   Height="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+              </Border>
+              <TextBlock Text="{Binding UiText.Find}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+          <Button Classes="nav-toolbar" Click="ReplaceButton_Click">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+              <Border Classes="tool-glyph">
+                <controls:BlueIcon Kind="Replace"
+                                   Width="18"
+                                   Height="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+              </Border>
+              <TextBlock Text="{Binding UiText.Replace}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+
+        <StackPanel Grid.Column="5"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Spacing="2">
+          <TextBlock Foreground="#475569"
+                     FontSize="11"
+                     Text="{Binding FocusedExplorerContextText}"/>
+          <TextBlock Foreground="#70757F"
+                     Text="{Binding UiText.ShortcutHint}"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="2" ColumnDefinitions="255,5,*">
+      <Border Grid.Column="0" Background="#FBFBFC" BorderBrush="#D8DADF" BorderThickness="0,0,1,0">
+        <TreeView x:Name="ExplorerTreeView"
+                  Margin="4,3"
+                  ItemsSource="{Binding ExplorerNodes}"
+                  SelectionChanged="ExplorerTreeView_SelectionChanged"
+                  DoubleTapped="ExplorerTreeView_DoubleTapped">
+          <TreeView.ItemTemplate>
+            <TreeDataTemplate DataType="models:ObjectNode" ItemsSource="{Binding Children}">
+              <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6" Margin="0,1">
+                <Grid.ContextMenu>
+                  <ContextMenu>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.UseSelected}" IsVisible="{Binding CanOpenConnection}" Tag="{Binding}" Click="OpenConnectionNodeMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.Close}" IsVisible="{Binding CanCloseConnection}" Tag="{Binding}" Click="CloseConnectionNodeMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.OpenSchema}" IsVisible="{Binding CanOpenSchema}" Tag="{Binding}" Click="OpenSchemaNodeMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.CloseSchema}" IsVisible="{Binding CanCloseSchema}" Tag="{Binding}" Click="CloseSchemaNodeMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.ConnectionDetails}" IsVisible="{Binding CanViewConnectionDetails}" Tag="{Binding}" Click="ConnectionDetailsNodeMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.CloneConnection}" IsVisible="{Binding CanDuplicateConnection}" Tag="{Binding}" Click="DuplicateConnectionNodeMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.EditConnection}" IsVisible="{Binding CanEditConnection}" Tag="{Binding}" Click="EditConnectionNodeMenuItem_Click"/>
+                    <Separator IsVisible="{Binding IsConnectionNode}"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.RefreshNode}" IsVisible="{Binding CanRefreshNode}" Tag="{Binding}" Click="RefreshNodeMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.CopyObjectName}" IsVisible="{Binding CanCopyName}" Tag="{Binding}" Click="CopyNodeNameMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.ViewDataModel}" IsVisible="{Binding IsSchemaNode}" IsEnabled="{Binding IsSchemaOpened}" Tag="{Binding}" Click="OpenSchemaModelDiagramMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.CommentMaintenance}" IsVisible="{Binding IsSchemaNode}" IsEnabled="{Binding IsSchemaOpened}" Tag="{Binding}" Click="OpenSchemaCommentMaintenanceMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.ViewRelationDiagram}" IsVisible="{Binding CanOpenTableModelDiagram}" Tag="{Binding}" Click="OpenTableModelDiagramMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.ObjectDetails}" IsVisible="{Binding CanOpenDetails}" Tag="{Binding}" Click="OpenObjectDetailsMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.EditObject}" IsVisible="{Binding CanEditObjectDefinition}" Tag="{Binding}" Click="OpenObjectEditorMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.GenerateSelectStatement}" IsVisible="{Binding CanGenerateSelectSql}" Tag="{Binding}" Click="GenerateSelectMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.GenerateCountStatement}" IsVisible="{Binding CanGenerateSelectSql}" Tag="{Binding}" Click="GenerateCountMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.GenerateInsertTemplate}" IsVisible="{Binding CanGenerateSelectSql}" Tag="{Binding}" Click="GenerateInsertTemplateMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.GenerateUpdateTemplate}" IsVisible="{Binding CanGenerateSelectSql}" Tag="{Binding}" Click="GenerateUpdateTemplateMenuItem_Click"/>
+                    <Separator IsVisible="{Binding CanDesignTable}"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.TableDesign}" IsVisible="{Binding CanDesignTable}" Tag="{Binding}" Click="DesignTableMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.ExportTableData}" IsVisible="{Binding CanExportTableData}" Tag="{Binding}" Click="ExportTableDataMenuItem_Click"/>
+                    <MenuItem Header="{Binding $parent[Window].DataContext.UiText.ExportTableStructure}" IsVisible="{Binding CanExportTableStructure}" Tag="{Binding}" Click="ExportTableStructureMenuItem_Click"/>
+                  </ContextMenu>
+                </Grid.ContextMenu>
+                <Border Width="26"
+                        Height="26"
+                        CornerRadius="8"
+                        Background="{Binding IconTileBackground}"
+                        BorderBrush="{Binding IconTileBorder}"
+                        BorderThickness="1">
+                  <controls:BlueIcon Kind="{Binding IconKind}"
+                                     AccentBrush="{Binding IconColor}"
+                                     StrokeScale="1.12"
+                                     Width="20"
+                                     Height="20"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Spacing="1">
+                  <TextBlock FontSize="11"
+                             Text="{Binding DisplayText}"
+                             Foreground="{Binding TextColor}"
+                             TextTrimming="CharacterEllipsis"
+                             ToolTip.Tip="{Binding Description}"/>
+                  <TextBlock FontSize="10"
+                             Foreground="#64748B"
+                             Text="{Binding SecondaryText}"
+                             IsVisible="{Binding IsConnectionNode}"
+                             TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            Spacing="6"
+                            VerticalAlignment="Center">
+                  <Border Background="{Binding ConnectionStatusBackground}"
+                          CornerRadius="8"
+                          Padding="6,1"
+                          IsVisible="{Binding IsConnectionNode}">
+                    <Grid>
+                      <TextBlock Text="{Binding $parent[Window].DataContext.UiText.Connected}"
+                                 FontSize="10"
+                                 Foreground="{Binding ConnectionStatusForeground}"
+                                 IsVisible="{Binding IsConnected}"/>
+                      <TextBlock Text="{Binding $parent[Window].DataContext.UiText.Disconnected}"
+                                 FontSize="10"
+                                 Foreground="{Binding ConnectionStatusForeground}"
+                                 IsVisible="{Binding !IsConnected}"/>
+                    </Grid>
+                  </Border>
+                  <Border Background="{Binding SchemaStatusBackground}"
+                          CornerRadius="8"
+                          Padding="6,1"
+                          IsVisible="{Binding IsSchemaNode}">
+                    <Grid>
+                      <TextBlock Text="{Binding $parent[Window].DataContext.UiText.SchemaOpened}"
+                                 FontSize="10"
+                                 Foreground="{Binding SchemaStatusForeground}"
+                                 IsVisible="{Binding IsSchemaOpened}"/>
+                      <TextBlock Text="{Binding $parent[Window].DataContext.UiText.SchemaClosed}"
+                                 FontSize="10"
+                                 Foreground="{Binding SchemaStatusForeground}"
+                                 IsVisible="{Binding !IsSchemaOpened}"/>
+                    </Grid>
+                  </Border>
+                  <Button
+                        Content="{Binding $parent[Window].DataContext.UiText.Retry}"
+                        Padding="6,1"
+                        MinHeight="20"
+                        VerticalAlignment="Center"
+                        IsVisible="{Binding IsRetryNode}"
+                        Tag="{Binding}"
+                        Click="RetryNodeButton_Click"/>
+                </StackPanel>
+              </Grid>
+            </TreeDataTemplate>
+          </TreeView.ItemTemplate>
+        </TreeView>
+      </Border>
+
+      <GridSplitter Grid.Column="1"
+                    Width="5"
+                    Background="#D8DADF"
+                    ResizeDirection="Columns"
+                    ShowsPreview="True"/>
+
+      <Grid x:Name="EditorWorkspaceGrid" Grid.Column="2">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="5"/>
+          <RowDefinition Height="260"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Background="#FBFBFC" BorderBrush="#D8DADF" BorderThickness="0,0,0,1" Padding="4,2">
+          <TabControl x:Name="DocumentTabControl"
+                      ItemsSource="{Binding Documents}"
+                      SelectedItem="{Binding SelectedDocument}"
+                      PointerPressed="DocumentTabControl_PointerPressed"
+                      SelectionChanged="DocumentTabControl_SelectionChanged">
+            <TabControl.ItemTemplate>
+              <DataTemplate DataType="models:EditorDocument">
+                <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="5">
+                  <TextBlock VerticalAlignment="Center" FontSize="11" Text="{Binding Title}"/>
+                  <Button Grid.Column="1"
+                          Classes="document-tab-close"
+                          VerticalAlignment="Center"
+                          ToolTip.Tip="{Binding $parent[Window].DataContext.UiText.TabClose}"
+                          Tag="{Binding}"
+                          Click="CloseDocumentButton_Click">
+                    <controls:BlueIcon Kind="Close"
+                                       Width="12"
+                                       Height="12"
+                                       StrokeScale="1.2"
+                                       AccentBrush="#64748B"/>
+                  </Button>
+                </Grid>
+              </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+              <DataTemplate DataType="models:EditorDocument">
+                <Border Height="0" IsVisible="False"/>
+              </DataTemplate>
+            </TabControl.ContentTemplate>
+          </TabControl>
+        </Border>
+
+        <Border Grid.Row="1"
+                Background="#FBFDFF"
+                BorderBrush="#DDEBF7"
+                BorderThickness="0,0,0,1"
+                Padding="8,5"
+                IsVisible="{Binding SelectedDocumentIsQuery}">
+          <Grid ColumnDefinitions="188,142,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*" ColumnSpacing="5">
+            <StackPanel Grid.Column="0" Spacing="2">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <controls:BlueIcon Kind="Database" Width="13" Height="13" StrokeScale="0.9"/>
+                <TextBlock Text="{Binding UiText.DatabaseConnection}" Foreground="#64748B" FontSize="11"/>
+              </StackPanel>
+              <ComboBox x:Name="DocumentConnectionComboBox"
+                        Classes="query-selector"
+                        ItemsSource="{Binding ConnectionProfiles}"
+                        SelectedItem="{Binding SelectedDocumentConnectionProfile, Mode=TwoWay}"
+                        Foreground="{Binding SelectedDocumentConnectionForeground}"
+                        SelectionChanged="DocumentConnectionComboBox_SelectionChanged">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate DataType="models:ConnectionProfile">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <controls:BlueIcon Kind="Database" Width="14" Height="14" StrokeScale="0.95"/>
+                      <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="2">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <controls:BlueIcon Kind="Schema" Width="13" Height="13" StrokeScale="0.9"/>
+                <TextBlock Text="{Binding UiText.Schema}" Foreground="#64748B" FontSize="11"/>
+              </StackPanel>
+              <ComboBox x:Name="DocumentSchemaComboBox"
+                        Classes="query-selector"
+                        ItemsSource="{Binding SelectedDocumentSchemas}"
+                        SelectedItem="{Binding SelectedDocumentSchema, Mode=TwoWay}"
+                        DropDownOpened="DocumentSchemaComboBox_DropDownOpened">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate DataType="x:String">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <controls:BlueIcon Kind="Schema" Width="14" Height="14" StrokeScale="0.95"/>
+                      <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+            </StackPanel>
+            <Button Grid.Column="2"
+                    Classes="query-icon-action"
+                    ToolTip.Tip="{Binding UiText.Run}"
+                    IsVisible="{Binding SelectedDocumentCanStartExecution}"
+                    Click="RunButton_Click">
+              <controls:BlueIcon Kind="Run"
+                                 Width="22"
+                                 Height="22"
+                                 StrokeScale="1.15"
+                                 AccentBrush="#16A34A"/>
+            </Button>
+            <Button Grid.Column="2"
+                    Classes="query-icon-action"
+                    ToolTip.Tip="{Binding UiText.CancelExecution}"
+                    IsVisible="{Binding SelectedDocumentIsExecuting}"
+                    Click="CancelExecutionButton_Click">
+              <controls:BlueIcon Kind="Remove"
+                                 Width="22"
+                                 Height="22"
+                                 StrokeScale="1.15"
+                                 AccentBrush="#DC2626"/>
+            </Button>
+            <Button Grid.Column="3"
+                    Classes="query-icon-action"
+                    ToolTip.Tip="{Binding UiText.Edit}"
+                    IsVisible="{Binding SelectedDocumentShowEditButton}"
+                    IsEnabled="{Binding SelectedDocumentCanEnterEditMode}"
+                    Click="EditResultButton_Click">
+              <Image Source="/Assets/icon-edit-pencil.png"
+                     Width="25"
+                     Height="25"
+                     Stretch="Uniform"/>
+            </Button>
+            <Button Grid.Column="3"
+                    Classes="query-icon-action"
+                    ToolTip.Tip="{Binding UiText.Save}"
+                    IsVisible="{Binding SelectedDocumentShowEditActionButtons}"
+                    IsEnabled="{Binding SelectedDocumentCanSaveEditedResult}"
+                    Click="SaveEditedResultButton_Click">
+              <Image Source="/Assets/icon-save-check.png"
+                     Width="25"
+                     Height="25"
+                     Stretch="Uniform"/>
+            </Button>
+            <Button Grid.Column="4"
+                    Classes="query-icon-action"
+                    ToolTip.Tip="{Binding UiText.Cancel}"
+                    IsVisible="{Binding SelectedDocumentShowEditActionButtons}"
+                    Click="CancelEditedResultButton_Click">
+              <Image Source="/Assets/icon-cancel-x.png"
+                     Width="25"
+                     Height="25"
+                     Stretch="Uniform"/>
+            </Button>
+            <Button Grid.Column="5" Classes="query-action" Click="FindTableButton_Click">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <controls:BlueIcon Kind="Search" Width="15" Height="15"/>
+                <TextBlock Text="{Binding UiText.LocateTable}" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="6" Classes="query-action" Click="FormatButton_Click">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <controls:BlueIcon Kind="Format" Width="15" Height="15"/>
+                <TextBlock Text="{Binding UiText.Format}" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="7" Classes="query-action" HorizontalAlignment="Left" Click="PlanButton_Click">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <controls:BlueIcon Kind="Plan" Width="15" Height="15"/>
+                <TextBlock Text="{Binding UiText.Plan}" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="8"
+                    Classes="query-action"
+                    IsEnabled="{Binding SelectedDocumentCanToggleResultWorkspace}"
+                    IsVisible="False"
+                    Click="ToggleResultWorkspaceButton_Click">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <controls:BlueIcon Kind="View" Width="15" Height="15"/>
+                <TextBlock Text="{Binding SelectedDocumentResultWorkspaceToggleText}" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Button>
+          </Grid>
+        </Border>
+
+        <Border Grid.Row="1"
+                Background="#FFF"
+                BorderBrush="#D8DADF"
+                BorderThickness="0,0,0,1"
+                Padding="8,6"
+                IsVisible="{Binding SelectedDocumentIsCommentMaintenance}">
+          <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*"
+                ColumnSpacing="8">
+            <StackPanel Grid.Column="0" Spacing="2">
+              <TextBlock Text="{Binding UiText.CurrentConnection}" Foreground="#6B7280" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedCommentWorkspaceConnectionName}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="2">
+              <TextBlock Text="{Binding UiText.CurrentSchema}" Foreground="#6B7280" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedCommentWorkspaceSchemaName}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="2">
+              <TextBlock Text="{Binding UiText.LoadedAt}" Foreground="#6B7280" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedCommentWorkspaceLoadedAtText}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <Button Grid.Column="3" Content="{Binding UiText.LoadComments}" Padding="8,2" MinHeight="26" Click="LoadCommentMaintenanceButton_Click"/>
+            <Button Grid.Column="4" Content="{Binding UiText.ImportCsv}" Padding="8,2" MinHeight="26" Click="ImportCommentMaintenanceCsvButton_Click"/>
+            <Button Grid.Column="5" Content="{Binding UiText.ExportCsv}" Padding="8,2" MinHeight="26" Click="ExportCommentMaintenanceCsvButton_Click"/>
+            <Button Grid.Column="6" Content="{Binding UiText.PreviewSql}" Padding="8,2" MinHeight="26" Click="PreviewCommentMaintenanceSqlButton_Click"/>
+            <Button Grid.Column="7"
+                    Content="{Binding UiText.ApplyUpdates}"
+                    Padding="8,2"
+                    MinHeight="26"
+                    IsEnabled="{Binding SelectedCommentWorkspaceHasChanges}"
+                    Click="ApplyCommentMaintenanceButton_Click"/>
+            <StackPanel Grid.Column="8"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Spacing="10">
+              <CheckBox Content="{Binding UiText.OnlyEmptyComments}" IsChecked="{Binding SelectedCommentWorkspaceOnlyEmpty, Mode=TwoWay}" VerticalAlignment="Center"/>
+              <CheckBox Content="{Binding UiText.OnlyChangedItems}" IsChecked="{Binding SelectedCommentWorkspaceOnlyChanged, Mode=TwoWay}" VerticalAlignment="Center"/>
+              <Button Content="{Binding UiText.ClearFilters}" Padding="8,2" MinHeight="26" Click="ClearCommentMaintenanceFiltersButton_Click"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border Grid.Row="1"
+                Background="#FFF"
+                BorderBrush="#D8DADF"
+                BorderThickness="0,0,0,1"
+                Padding="8,6"
+                IsVisible="{Binding SelectedDocumentIsModelDiagram}">
+          <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*"
+                ColumnSpacing="8">
+            <StackPanel Grid.Column="0" Spacing="2">
+              <TextBlock Text="{Binding UiText.CurrentConnection}" Foreground="#6B7280" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedModelDiagramConnectionName}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="2">
+              <TextBlock Text="{Binding UiText.CurrentSchema}" Foreground="#6B7280" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedModelDiagramSchemaName}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="2">
+              <TextBlock Text="{Binding UiText.LoadedAt}" Foreground="#6B7280" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedModelDiagramLoadedAtText}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <Button Grid.Column="3" Content="{Binding UiText.LoadModel}" Padding="8,2" MinHeight="26" IsEnabled="{Binding SelectedModelDiagramCanReload}" Click="LoadModelDiagramButton_Click"/>
+            <Button Grid.Column="4" Content="{Binding UiText.ExpandOneLevel}" Padding="8,2" MinHeight="26" IsEnabled="{Binding SelectedModelDiagramCanExpandNeighborhood}" Click="ExpandModelDiagramNeighborhoodButton_Click"/>
+            <Button Grid.Column="5" Content="{Binding UiText.Relayout}" Padding="8,2" MinHeight="26" Click="ReloadModelDiagramLayoutButton_Click"/>
+            <Button Grid.Column="6" Content="{Binding UiText.ExportRelations}" Padding="8,2" MinHeight="26" IsEnabled="{Binding SelectedModelDiagramCanExport}" Click="ExportModelDiagramRelationsButton_Click"/>
+            <Button Grid.Column="7" Content="{Binding UiText.ExportImage}" Padding="8,2" MinHeight="26" IsEnabled="{Binding SelectedModelDiagramCanExportImage}" Click="ExportModelDiagramImageButton_Click"/>
+            <StackPanel Grid.Column="8"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Spacing="6">
+              <Button Content="－" MinWidth="28" Padding="4,2" Click="ZoomOutModelDiagramButton_Click"/>
+              <Button Content="{Binding SelectedModelDiagramZoomText}" MinWidth="64" Padding="6,2" Click="ResetModelDiagramZoomButton_Click"/>
+              <Button Content="＋" MinWidth="28" Padding="4,2" Click="ZoomInModelDiagramButton_Click"/>
+            </StackPanel>
+            <TextBlock Grid.Column="9"
+                       Text="{Binding SelectedModelDiagramNeighborhoodDepthText}"
+                       VerticalAlignment="Center"
+                       Foreground="#64748B"/>
+            <StackPanel Grid.Column="10"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Spacing="10">
+              <CheckBox Content="{Binding UiText.OnlyCurrentTableNeighborhood}" IsChecked="{Binding SelectedModelDiagramOnlyNeighborhood, Mode=TwoWay}" VerticalAlignment="Center"/>
+              <CheckBox Content="{Binding UiText.OnlyRelatedTables}" IsChecked="{Binding SelectedModelDiagramOnlyRelatedTables, Mode=TwoWay}" VerticalAlignment="Center"/>
+              <CheckBox Content="{Binding UiText.ShowColumns}" IsChecked="{Binding SelectedModelDiagramShowColumns, Mode=TwoWay}" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border Grid.Row="1"
+                Background="#FFF"
+                BorderBrush="#D8DADF"
+                BorderThickness="0,0,0,1"
+                Padding="8,6"
+                IsVisible="{Binding SelectedDocumentIsObjectEditor}">
+          <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto"
+                ColumnSpacing="8">
+            <StackPanel Grid.Column="0" Spacing="2">
+              <TextBlock Text="{Binding UiText.ObjectLabel}" Foreground="#6B7280" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedObjectEditorObjectName}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="2">
+              <TextBlock Text="{Binding UiText.TypeLabel}" Foreground="#6B7280" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedObjectEditorObjectType}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="2">
+              <TextBlock Text="{Binding UiText.Schema}" Foreground="#6B7280" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedObjectEditorSchemaName}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <StackPanel Grid.Column="3" Spacing="2">
+              <TextBlock Text="{Binding UiText.Database}" Foreground="#6B7280" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedObjectEditorConnectionName}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <StackPanel Grid.Column="4" Spacing="2">
+              <TextBlock Text="{Binding UiText.Capability}" Foreground="#6B7280" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedObjectEditorCapabilityText}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <TextBlock Grid.Column="5"
+                       Text="{Binding SelectedObjectEditorCommentText}"
+                       Foreground="#64748B"
+                       VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis"/>
+            <Button Grid.Column="6" Content="{Binding UiText.RefreshDefinition}" Padding="8,2" MinHeight="26" IsEnabled="{Binding SelectedObjectEditorCanRefresh}" Click="RefreshObjectEditorButton_Click"/>
+            <Button Grid.Column="7" Content="{Binding UiText.PreviewSql}" Padding="8,2" MinHeight="26" IsEnabled="{Binding SelectedObjectEditorCanPreview}" Click="PreviewObjectEditorSqlButton_Click"/>
+            <Button Grid.Column="8" Content="{Binding UiText.CompileValidate}" Padding="8,2" MinHeight="26" IsEnabled="{Binding SelectedObjectEditorCanValidate}" Click="ValidateObjectEditorButton_Click"/>
+            <StackPanel Grid.Column="9" Orientation="Horizontal" Spacing="6">
+              <Button Content="{Binding UiText.DiscardChanges}" Padding="8,2" MinHeight="26" Click="DiscardObjectEditorChangesButton_Click"/>
+              <Button Content="{Binding UiText.Save}" Padding="8,2" MinHeight="26" IsEnabled="{Binding SelectedObjectEditorCanSave}" Click="SaveObjectEditorButton_Click"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Grid Grid.Row="2">
+          <Grid IsVisible="{Binding SelectedDocumentUsesTextEditor}">
+          <avaloniaEdit:TextEditor x:Name="EditorTextBox"
+                                   Margin="0"
+                                   Background="#FFF"
+                                   BorderThickness="0"
+                                   FontFamily="Consolas"
+                                   FontSize="13"
+                                   ShowLineNumbers="True"
+                                   HorizontalScrollBarVisibility="Disabled"
+                                   VerticalScrollBarVisibility="Auto"
+                                   KeyDown="EditorTextBox_KeyDown"
+                                   KeyUp="EditorTextBox_KeyUp"
+                                   PointerPressed="EditorTextBox_PointerPressed"
+                                   TextChanged="EditorTextBox_TextChanged">
+            <avaloniaEdit:TextEditor.ContextMenu>
+              <ContextMenu>
+                <MenuItem Header="{Binding UiText.Format}" Click="FormatButton_Click"/>
+                <MenuItem Header="{Binding UiText.Run}" Click="RunButton_Click" IsVisible="{Binding SelectedDocumentIsQuery}"/>
+                <MenuItem Header="{Binding UiText.PreviewSql}" Click="PreviewObjectEditorSqlButton_Click" IsVisible="{Binding SelectedDocumentIsObjectEditor}"/>
+                <MenuItem Header="{Binding UiText.Save}" Click="SaveObjectEditorButton_Click" IsVisible="{Binding SelectedDocumentIsObjectEditor}"/>
+                <Separator/>
+                <MenuItem Header="{Binding UiText.SelectAll}" Click="SelectAllEditorMenuItem_Click"/>
+                <MenuItem Header="{Binding UiText.Copy}" Click="CopyEditorMenuItem_Click"/>
+                <MenuItem Header="{Binding UiText.Cut}" Click="CutEditorMenuItem_Click"/>
+                <MenuItem Header="{Binding UiText.Paste}" Click="PasteEditorMenuItem_Click"/>
+              </ContextMenu>
+            </avaloniaEdit:TextEditor.ContextMenu>
+          </avaloniaEdit:TextEditor>
+
+          <Border x:Name="SearchPanel"
+                  IsVisible="{Binding IsSearchVisible}"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Top"
+                  Margin="0,8,8,0"
+                  Padding="7"
+                  Background="#FFFFFF"
+                  BorderBrush="#CBD5E1"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  BoxShadow="0 6 18 0 #22000000">
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="160,160,Auto,Auto,Auto,Auto">
+              <TextBox x:Name="SearchTextBox"
+                       Grid.Row="0"
+                       Grid.Column="0"
+                       Margin="0,0,6,0"
+                       Watermark="{Binding UiText.SearchWatermark}"
+                       Text="{Binding SearchText, Mode=TwoWay}"
+                       KeyDown="SearchTextBox_KeyDown"/>
+              <TextBox x:Name="ReplaceTextBox"
+                       Grid.Row="0"
+                       Grid.Column="1"
+                       Margin="0,0,6,0"
+                       Watermark="{Binding UiText.ReplaceWatermark}"
+                       Text="{Binding ReplaceText, Mode=TwoWay}"
+                       IsVisible="{Binding IsReplaceVisible}"
+                       KeyDown="ReplaceTextBox_KeyDown"/>
+              <Button Grid.Row="0" Grid.Column="2" Margin="0,0,6,0" Content="{Binding UiText.Next}" Click="FindNextButton_Click"/>
+              <Button Grid.Row="0" Grid.Column="3" Margin="0,0,6,0" Content="{Binding UiText.Replace}" IsVisible="{Binding IsReplaceVisible}" Click="ReplaceCurrentButton_Click"/>
+              <Button Grid.Row="0" Grid.Column="4" Margin="0,0,6,0" Content="{Binding UiText.ReplaceAll}" IsVisible="{Binding IsReplaceVisible}" Click="ReplaceAllButton_Click"/>
+              <Button Grid.Row="0" Grid.Column="5" Content="×" Click="CloseSearchPanelButton_Click"/>
+              <TextBlock Grid.Row="1"
+                         Grid.ColumnSpan="6"
+                         Margin="0,8,0,0"
+                         Foreground="#6B7280"
+                         FontSize="11"
+                         Text="{Binding UiText.SearchHintText}"/>
+            </Grid>
+          </Border>
+
+          </Grid>
+
+          <Grid IsVisible="{Binding SelectedDocumentIsQueryHistory}"
+                RowDefinitions="Auto,*"
+                RowSpacing="8"
+                Margin="10">
+            <Border Grid.Row="0"
+                    Background="#F8FBFF"
+                    BorderBrush="#C8DFF5"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="10">
+              <StackPanel Spacing="3">
+                <TextBlock Text="{Binding UiText.QueryHistory}"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="#1F5F9B"/>
+                <TextBlock Text="{Binding UiText.QueryHistorySubtitle}"
+                           Foreground="#64748B"/>
+              </StackPanel>
+            </Border>
+            <DataGrid Grid.Row="1"
+                      ItemsSource="{Binding QueryHistoryEntries}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserSortColumns="True"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="Horizontal"
+                      RowHeight="34"
+                      BorderBrush="#C8DFF5"
+                      BorderThickness="1"
+                      Background="#FFFFFF">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="{Binding UiText.QueryHistoryTime}"
+                                    Binding="{Binding ExecutedAtDisplay}"
+                                    Width="150"/>
+                <DataGridTextColumn Header="{Binding UiText.QueryHistoryConnection}"
+                                    Binding="{Binding ConnectionName}"
+                                    Width="150"/>
+                <DataGridTextColumn Header="{Binding UiText.QueryHistorySchema}"
+                                    Binding="{Binding SchemaName}"
+                                    Width="110"/>
+                <DataGridTextColumn Header="{Binding UiText.QueryHistoryStatus}"
+                                    Binding="{Binding StatusText}"
+                                    Width="70"/>
+                <DataGridTextColumn Header="{Binding UiText.QueryHistoryRows}"
+                                    Binding="{Binding RowCount}"
+                                    Width="70"/>
+                <DataGridTextColumn Header="{Binding UiText.QueryHistoryDuration}"
+                                    Binding="{Binding DurationText}"
+                                    Width="90"/>
+                <DataGridTextColumn Header="{Binding UiText.QueryHistorySql}"
+                                    Binding="{Binding SqlPreview}"
+                                    Width="2.4*"/>
+                <DataGridTextColumn Header="{Binding UiText.QueryHistorySummary}"
+                                    Binding="{Binding Summary}"
+                                    Width="1.2*"/>
+                <DataGridTemplateColumn Width="80">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate DataType="models:QueryHistoryEntry">
+                      <Button Classes="result-navigation-action"
+                              Content="{Binding $parent[Window].DataContext.UiText.QueryHistoryOpen}"
+                              Tag="{Binding}"
+                              Click="OpenQueryFromHistoryButton_Click"/>
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+              </DataGrid.Columns>
+            </DataGrid>
+          </Grid>
+
+          <Grid IsVisible="{Binding SelectedDocumentIsCommentMaintenance}"
+                RowDefinitions="Auto,Auto,*"
+                RowSpacing="8"
+                Margin="8">
+            <Grid ColumnDefinitions="*,220,Auto"
+                  ColumnSpacing="8">
+              <TextBox Grid.Column="0"
+                       Watermark="{Binding UiText.CommentTableFilterWatermark}"
+                       Text="{Binding SelectedCommentWorkspaceTableKeyword, Mode=TwoWay}"/>
+              <TextBox Grid.Column="1"
+                       Watermark="{Binding UiText.CommentColumnFilterWatermark}"
+                       Text="{Binding SelectedCommentWorkspaceColumnKeyword, Mode=TwoWay}"/>
+              <ComboBox Grid.Column="2"
+                        Width="220"
+                        ItemsSource="{Binding SelectedCommentTableFilterOptions}"
+                        SelectedItem="{Binding SelectedCommentWorkspaceTableFilter, Mode=TwoWay}"/>
+            </Grid>
+
+            <Border Grid.Row="1"
+                    Background="#F8FAFC"
+                    BorderBrush="#D8DADF"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="10,8"
+                    IsVisible="{Binding SelectedCommentWorkspaceHasSummary}">
+              <TextBlock Text="{Binding SelectedCommentWorkspaceSummaryText}"
+                         Foreground="{Binding SelectedCommentWorkspaceSummaryForeground}"
+                         TextWrapping="Wrap"/>
+            </Border>
+
+            <Grid Grid.Row="2"
+                  ColumnDefinitions="*,*"
+                  ColumnSpacing="10">
+              <Border Grid.Column="0"
+                      Background="#FFFFFF"
+                      BorderBrush="#D8DADF"
+                      BorderThickness="1"
+                      CornerRadius="6"
+                      Padding="8">
+                <Grid RowDefinitions="Auto,*"
+                      RowSpacing="8">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="{Binding UiText.TableComments}"
+                               FontWeight="SemiBold"
+                               Foreground="#334155"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding SelectedCommentTablesCountText}"
+                               Foreground="#64748B"
+                               VerticalAlignment="Center"/>
+                    </Grid>
+                    <DataGrid Grid.Row="1"
+                              x:Name="CommentTablesGrid"
+                              ItemsSource="{Binding SelectedCommentTables}"
+                              AutoGenerateColumns="False"
+                              CanUserSortColumns="True"
+                              GridLinesVisibility="All"
+                              HeadersVisibility="Column"
+                              IsReadOnly="False">
+                      <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="{Binding UiText.ObjectName}" IsReadOnly="True" Width="1.2*">
+                          <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                              <Border Background="Transparent"
+                                      Padding="0"
+                                      PointerPressed="CommentTableNameCell_PointerPressed">
+                                <TextBlock Text="{Binding ObjectName}"/>
+                              </Border>
+                            </DataTemplate>
+                          </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="{Binding UiText.ObjectType}" Binding="{Binding ObjectType}" IsReadOnly="True" Width="0.9*"/>
+                        <DataGridTextColumn Header="{Binding UiText.CurrentComment}" Binding="{Binding CurrentComment}" IsReadOnly="True" Width="1.5*"/>
+                        <DataGridTextColumn Header="{Binding UiText.NewComment}" Binding="{Binding EditedComment, Mode=TwoWay}" Width="1.8*"/>
+                        <DataGridTextColumn Header="{Binding UiText.Status}" Binding="{Binding StatusText}" IsReadOnly="True" Width="0.8*"/>
+                      </DataGrid.Columns>
+                  </DataGrid>
+                </Grid>
+              </Border>
+
+              <Border Grid.Column="1"
+                      Background="#FFFFFF"
+                      BorderBrush="#D8DADF"
+                      BorderThickness="1"
+                      CornerRadius="6"
+                      Padding="8">
+                <Grid RowDefinitions="Auto,*"
+                      RowSpacing="8">
+                  <Grid ColumnDefinitions="*,Auto,Auto">
+                    <TextBlock Text="{Binding UiText.ColumnComments}"
+                               FontWeight="SemiBold"
+                               Foreground="#334155"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding SelectedCommentColumnsCountText}"
+                               Foreground="#64748B"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding SelectedCommentWorkspaceChangedCountText}"
+                               Foreground="#2563EB"
+                               VerticalAlignment="Center"/>
+                  </Grid>
+                  <DataGrid Grid.Row="1"
+                            ItemsSource="{Binding SelectedCommentColumns}"
+                            AutoGenerateColumns="False"
+                            CanUserSortColumns="True"
+                            GridLinesVisibility="All"
+                            HeadersVisibility="Column"
+                            IsReadOnly="False">
+                    <DataGrid.Columns>
+                      <DataGridTextColumn Header="{Binding UiText.TableName}" Binding="{Binding TableName}" IsReadOnly="True" Width="1.1*"/>
+                      <DataGridTextColumn Header="{Binding UiText.ColumnName}" Binding="{Binding ColumnName}" IsReadOnly="True" Width="1.1*"/>
+                      <DataGridTextColumn Header="{Binding UiText.DataType}" Binding="{Binding DataType}" IsReadOnly="True" Width="1.0*"/>
+                      <DataGridTextColumn Header="{Binding UiText.CurrentComment}" Binding="{Binding CurrentComment}" IsReadOnly="True" Width="1.5*"/>
+                      <DataGridTextColumn Header="{Binding UiText.NewComment}" Binding="{Binding EditedComment, Mode=TwoWay}" Width="1.8*"/>
+                      <DataGridTextColumn Header="{Binding UiText.Status}" Binding="{Binding StatusText}" IsReadOnly="True" Width="0.8*"/>
+                    </DataGrid.Columns>
+                  </DataGrid>
+                </Grid>
+              </Border>
+            </Grid>
+          </Grid>
+
+          <Grid IsVisible="{Binding SelectedDocumentIsModelDiagram}"
+                RowDefinitions="Auto,*"
+                RowSpacing="8"
+                Margin="8">
+            <Border Background="#F8FAFC"
+                    BorderBrush="#D8DADF"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="10,8">
+              <TextBlock Text="{Binding SelectedModelDiagramMessageText}"
+                         Foreground="#2563EB"
+                         TextWrapping="Wrap"/>
+            </Border>
+
+            <Grid Grid.Row="1"
+                  ColumnDefinitions="250,*,320"
+                  ColumnSpacing="10">
+              <Border Grid.Column="0"
+                      Background="#FFFFFF"
+                      BorderBrush="#D8DADF"
+                      BorderThickness="1"
+                      CornerRadius="6"
+                      Padding="8">
+                <Grid RowDefinitions="Auto,*"
+                      RowSpacing="8">
+                  <TextBox Watermark="{Binding UiText.ModelSearchWatermark}"
+                           Text="{Binding SelectedModelDiagramSearchKeyword, Mode=TwoWay}"/>
+                  <ListBox Grid.Row="1"
+                           ItemsSource="{Binding SelectedModelDiagramTables}"
+                           SelectedItem="{Binding SelectedModelDiagramSelectedTable, Mode=TwoWay}">
+                    <ListBox.ItemTemplate>
+                      <DataTemplate DataType="models:ModelTableNode">
+                        <StackPanel Margin="6,4" Spacing="1">
+                          <TextBlock Text="{Binding TableName}" FontWeight="SemiBold"/>
+                          <TextBlock Text="{Binding CommentText}"
+                                     FontSize="10"
+                                     Foreground="#64748B"
+                                     TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+                </Grid>
+              </Border>
+
+              <Border Grid.Column="1"
+                      Background="#FFFFFF"
+                      BorderBrush="#D8DADF"
+                      BorderThickness="1"
+                      CornerRadius="6"
+                      Padding="8">
+                <ScrollViewer x:Name="ModelDiagramScrollViewer"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
+                              PointerPressed="ModelDiagramScrollViewer_PointerPressed"
+                              PointerMoved="ModelDiagramScrollViewer_PointerMoved"
+                              PointerReleased="ModelDiagramScrollViewer_PointerReleased">
+                  <Canvas x:Name="ModelDiagramCanvas"
+                          Width="{Binding SelectedModelDiagramCanvasWidth}"
+                          Height="{Binding SelectedModelDiagramCanvasHeight}"/>
+                </ScrollViewer>
+              </Border>
+
+              <Border Grid.Column="2"
+                      Background="#FFFFFF"
+                      BorderBrush="#D8DADF"
+                      BorderThickness="1"
+                      CornerRadius="6"
+                      Padding="8">
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*,*,*"
+                      RowSpacing="8">
+                  <TextBlock Text="{Binding SelectedModelDiagramSelectedTableName}"
+                             FontWeight="SemiBold"
+                             FontSize="13"/>
+                  <TextBlock Grid.Row="1"
+                             Text="{Binding SelectedModelDiagramSelectedTableCommentText}"
+                             Foreground="#64748B"
+                             TextWrapping="Wrap"/>
+                  <TextBlock Grid.Row="2"
+                             Text="{Binding SelectedModelDiagramSelectedTablePrimaryKeysDisplay}"
+                             Foreground="#334155"/>
+                  <TextBlock Grid.Row="3"
+                             Text="{Binding SelectedModelDiagramSelectedTableColumnCountDisplay}"
+                             Foreground="#334155"/>
+
+                  <Border Grid.Row="4"
+                          BorderBrush="#D8DADF"
+                          BorderThickness="1"
+                          CornerRadius="6"
+                          Padding="8"
+                          IsVisible="{Binding SelectedModelDiagramHasSelectedRelation}">
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
+                      <TextBlock Text="{Binding UiText.CurrentRelation}" FontWeight="SemiBold"/>
+                      <TextBlock Grid.Row="1"
+                                 Text="{Binding SelectedModelDiagramSelectedRelationConstraintDisplay}"
+                                 Foreground="#334155"
+                                 TextWrapping="Wrap"/>
+                      <TextBlock Grid.Row="2"
+                                 Text="{Binding SelectedModelDiagramSelectedRelationSummaryDisplay}"
+                                 Foreground="#334155"
+                                 TextWrapping="Wrap"/>
+                      <TextBlock Grid.Row="3"
+                                 Text="{Binding SelectedModelDiagramSelectedRelationParentColumnsDisplay}"
+                                 Foreground="#64748B"
+                                 TextWrapping="Wrap"/>
+                      <TextBlock Grid.Row="4"
+                                 Text="{Binding SelectedModelDiagramSelectedRelationChildColumnsDisplay}"
+                                 Foreground="#64748B"
+                                 TextWrapping="Wrap"/>
+                    </Grid>
+                  </Border>
+
+                  <Border Grid.Row="5" BorderBrush="#D8DADF" BorderThickness="1" CornerRadius="6" Padding="8">
+                    <Grid RowDefinitions="Auto,*" RowSpacing="6">
+                      <TextBlock Text="{Binding UiText.ReferencedTables}" FontWeight="SemiBold"/>
+                      <ItemsControl Grid.Row="1" ItemsSource="{Binding SelectedModelDiagramSelectedTableReferences}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding .}" Margin="0,0,0,4" TextWrapping="Wrap"/>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </Grid>
+                  </Border>
+
+                  <Border Grid.Row="6" BorderBrush="#D8DADF" BorderThickness="1" CornerRadius="6" Padding="8">
+                    <Grid RowDefinitions="Auto,*" RowSpacing="6">
+                      <TextBlock Text="{Binding UiText.ReferencedByTables}" FontWeight="SemiBold"/>
+                      <ItemsControl Grid.Row="1" ItemsSource="{Binding SelectedModelDiagramSelectedTableReferencedBy}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding .}" Margin="0,0,0,4" TextWrapping="Wrap"/>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </Grid>
+                  </Border>
+
+                  <Border Grid.Row="7" BorderBrush="#D8DADF" BorderThickness="1" CornerRadius="6" Padding="8">
+                    <Grid RowDefinitions="Auto,*" RowSpacing="6">
+                      <TextBlock Text="{Binding UiText.ColumnList}" FontWeight="SemiBold"/>
+                      <ItemsControl Grid.Row="1" ItemsSource="{Binding SelectedModelDiagramSelectedTableColumns}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate DataType="models:ModelColumnNode">
+                            <StackPanel Margin="0,0,0,6" Spacing="1">
+                              <TextBlock Text="{Binding ColumnName}" FontWeight="SemiBold"/>
+                              <TextBlock Text="{Binding DataType}" FontSize="10" Foreground="#64748B"/>
+                              <TextBlock Text="{Binding CommentText}" FontSize="10" Foreground="#64748B" TextWrapping="Wrap"/>
+                            </StackPanel>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </Grid>
+                  </Border>
+                </Grid>
+              </Border>
+            </Grid>
+          </Grid>
+        </Grid>
+
+        <GridSplitter Grid.Row="3"
+                      Height="6"
+                      Background="#D8DADF"
+                      IsVisible="{Binding SelectedDocumentShouldShowResultWorkspace}"
+                      ResizeDirection="Rows"
+                      ShowsPreview="True"/>
+        <Border x:Name="ResultWorkspaceBorder"
+                Grid.Row="4"
+                Background="#FBFBFC"
+                BorderBrush="#D8DADF"
+                BorderThickness="0,1,0,0"
+                IsVisible="{Binding SelectedDocumentShouldShowResultWorkspace}"
+                MinHeight="170">
+          <Grid Margin="8">
+            <Grid IsVisible="{Binding SelectedDocumentIsObjectEditor}">
+              <TabControl>
+                <TabItem Header="Messages">
+                  <Border Margin="0,8,0,0"
+                          Background="#FFF8E1"
+                          BorderBrush="#E8D39B"
+                          BorderThickness="1"
+                          CornerRadius="6"
+                          Padding="10">
+                    <TextBox Text="{Binding SelectedObjectEditorMessageText}"
+                             IsReadOnly="True"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             BorderThickness="0"
+                             Background="Transparent"/>
+                  </Border>
+                </TabItem>
+                <TabItem Header="DDL Preview">
+                  <TextBox Margin="0,8,0,0"
+                           Text="{Binding SelectedObjectEditorPreviewSql}"
+                           IsReadOnly="True"
+                           AcceptsReturn="True"
+                           TextWrapping="NoWrap"
+                           FontFamily="Consolas"/>
+                </TabItem>
+                <TabItem Header="Compile Result">
+                  <TextBox Margin="0,8,0,0"
+                           Text="{Binding SelectedObjectEditorCompileResultText}"
+                           IsReadOnly="True"
+                           AcceptsReturn="True"
+                           TextWrapping="Wrap"
+                           FontFamily="Consolas"/>
+                </TabItem>
+              </TabControl>
+            </Grid>
+            <Grid RowDefinitions="Auto,Auto,*" IsVisible="{Binding SelectedDocumentIsQuery}">
+              <Border Classes="result-navigation-bar"
+                      IsVisible="{Binding SelectedDocumentShouldShowResultNavigationBar}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <ItemsControl ItemsSource="{Binding SelectedDocumentTabularResultSets}"
+                                IsVisible="{Binding SelectedDocumentShouldShowResultSetNavigator}"
+                                VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="6"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate DataType="appModels:ResultSetViewItem">
+                        <Button Classes="result-navigation-chip"
+                                Content="{Binding NavigationTitle}"
+                                ToolTip.Tip="{Binding Name}"
+                                Tag="{Binding}"
+                                Click="ResultNavigationChip_Click"/>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <Button Classes="result-navigation-action"
+                          Content="{Binding UiText.MessagesTab}"
+                          IsVisible="{Binding SelectedDocumentHasMessage}"
+                          Click="ResultMessageNavigationButton_Click"/>
+                  <Button Classes="result-navigation-action"
+                          Content="{Binding UiText.Plan}"
+                          IsVisible="{Binding SelectedDocumentHasExecutionPlan}"
+                          Click="ResultPlanNavigationButton_Click"/>
+                </StackPanel>
+              </Border>
+              <Border Grid.Row="1"
+                      Margin="0,0,0,5"
+                      Padding="8,5"
+                      Background="#FFF7ED"
+                      BorderBrush="#FDBA74"
+                      BorderThickness="1"
+                      CornerRadius="6"
+                      IsVisible="{Binding SelectedDocumentHasPreviewTruncatedResult}">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                  <TextBlock Text="{Binding SelectedDocumentPreviewTruncatedNotice}"
+                             Foreground="#9A3412"
+                             FontSize="11"
+                             VerticalAlignment="Center"
+                             TextWrapping="Wrap"/>
+                  <Button Grid.Column="1"
+                          Classes="result-navigation-action"
+                          Content="{Binding SelectedDocumentLoadMoreRowsText}"
+                          IsEnabled="{Binding SelectedDocumentCanLoadMoreRows}"
+                          Click="LoadMoreResultRowsButton_Click"/>
+                </Grid>
+              </Border>
+              <Grid Grid.Row="2"
+                    x:Name="ResultInteractionHost"
+                    Focusable="True"
+                    KeyDown="ResultInteractionHost_KeyDown"
+                    PointerPressed="Window_PointerPressed"
+                    PointerMoved="Window_PointerMoved"
+                    PointerReleased="Window_PointerReleased">
+                <Grid RowDefinitions="*,Auto"
+                      IsVisible="{Binding SelectedDocumentSelectedWorkspaceTabIsResult}">
+                  <Border Grid.Row="0"
+                        Background="#FFFFFF"
+                        BorderBrush="#D8DADF"
+                        BorderThickness="1"
+                        CornerRadius="6">
+                  <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Grid RowDefinitions="Auto,*">
+                      <Grid x:Name="ResultFixedHeaderHost"/>
+                      <ScrollViewer x:Name="ResultFixedBodyScrollViewer"
+                                    Grid.Row="1"
+                                    HorizontalScrollBarVisibility="Disabled"
+                                    VerticalScrollBarVisibility="Hidden">
+                        <StackPanel x:Name="ResultFixedRowsHost"/>
+                      </ScrollViewer>
+                    </Grid>
+                    <ScrollViewer x:Name="ResultHorizontalScrollViewer"
+                                  Grid.Column="1"
+                                  HorizontalScrollBarVisibility="Visible"
+                                  VerticalScrollBarVisibility="Disabled">
+                      <Grid RowDefinitions="Auto,*">
+                        <Grid x:Name="ResultHeaderHost"/>
+                        <ScrollViewer x:Name="ResultBodyScrollViewer"
+                                      Grid.Row="1"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Hidden">
+                          <StackPanel x:Name="ResultRowsHost"/>
+                        </ScrollViewer>
+                      </Grid>
+                    </ScrollViewer>
+                    <ScrollBar x:Name="ResultVerticalScrollBar"
+                               Grid.Column="2"
+                               Orientation="Vertical"
+                               Minimum="0"
+                               SmallChange="24"
+                               LargeChange="240"
+                               ViewportSize="240"
+                               ValueChanged="ResultVerticalScrollBar_ValueChanged"/>
+                  </Grid>
+                </Border>
+                  <StackPanel Grid.Row="1"
+                              Margin="0,4,0,0"
+                              Spacing="4">
+                    <Button Classes="result-navigation-action"
+                            HorizontalAlignment="Left"
+                            MinHeight="24"
+                            Padding="8,2"
+                            Content="{Binding UiText.ValueDetail}"
+                            IsVisible="{Binding SelectedDocumentValueDetailButtonVisible}"
+                            Click="OpenValueDetailButton_Click"/>
+                    <Border Padding="8"
+                            Background="#F8FBFF"
+                            BorderBrush="#C8DBF0"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            MaxHeight="142"
+                            IsVisible="{Binding SelectedDocumentValueDetailPanelVisible}">
+                    <Grid RowDefinitions="Auto,*" RowSpacing="6">
+                      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding UiText.ValueDetail}"
+                                     FontSize="12"
+                                     FontWeight="SemiBold"
+                                     Foreground="#1F5F9B"/>
+                          <TextBlock Foreground="#334155" FontSize="11">
+                            <Run Text="{Binding UiText.ValueDetailColumn}"/>
+                            <Run Text=": "/>
+                            <Run Text="{Binding SelectedDocumentValueDetail.ColumnName}"/>
+                          </TextBlock>
+                          <TextBlock Foreground="#64748B" FontSize="11">
+                            <Run Text="{Binding UiText.ValueDetailRow}"/>
+                            <Run Text=": "/>
+                            <Run Text="{Binding SelectedDocumentValueDetail.RowNumberText}"/>
+                          </TextBlock>
+                          <TextBlock Text="{Binding SelectedDocumentValueDetail.SelectionText}"
+                                     Foreground="#0F766E"
+                                     FontSize="11"
+                                     IsVisible="{Binding SelectedDocumentValueDetail.HasSelectionText}"/>
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Classes="result-navigation-action"
+                                Content="{Binding UiText.CopyValue}"
+                                Click="CopyValueDetailButton_Click"/>
+                        <Button Grid.Column="2"
+                                Classes="result-navigation-action"
+                                Content="×"
+                                ToolTip.Tip="{Binding UiText.Close}"
+                                Click="CloseValueDetailButton_Click"/>
+                      </Grid>
+                      <Grid Grid.Row="1" ColumnDefinitions="260,*" ColumnSpacing="8">
+                        <StackPanel Spacing="3">
+                          <TextBlock FontSize="11" Foreground="#64748B">
+                            <Run Text="{Binding UiText.ValueDetailComment}"/>
+                            <Run Text=": "/>
+                            <Run Text="{Binding SelectedDocumentValueDetail.ColumnComment}"/>
+                          </TextBlock>
+                          <TextBlock FontSize="11" Foreground="#64748B">
+                            <Run Text="{Binding UiText.ValueDetailDataType}"/>
+                            <Run Text=": "/>
+                            <Run Text="{Binding SelectedDocumentValueDetail.DataType}"/>
+                          </TextBlock>
+                          <TextBlock FontSize="11" Foreground="#64748B" TextWrapping="Wrap">
+                            <Run Text="{Binding UiText.ValueDetailSource}"/>
+                            <Run Text=": "/>
+                            <Run Text="{Binding SelectedDocumentValueDetail.SourceName}"/>
+                          </TextBlock>
+                        </StackPanel>
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding SelectedDocumentValueDetail.ValueText}"
+                                 IsReadOnly="True"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 FontFamily="Consolas"
+                                 FontSize="12"
+                                 BorderBrush="#D6E7F8"
+                                 Background="#FFFFFF"/>
+                      </Grid>
+                    </Grid>
+                    </Border>
+                  </StackPanel>
+                </Grid>
+                <Border Padding="8,6"
+                      Background="#FFF8E1"
+                      BorderBrush="#E8D39B"
+                      BorderThickness="1"
+                      CornerRadius="6"
+                      IsVisible="{Binding SelectedDocumentSelectedWorkspaceTabIsMessage}">
+                <TextBlock Text="{Binding SelectedDocumentMessageText}" Foreground="#7A5C00" TextWrapping="Wrap"/>
+              </Border>
+                <Grid RowDefinitions="Auto,Auto,*"
+                      RowSpacing="8"
+                      IsVisible="{Binding SelectedDocumentSelectedWorkspaceTabIsPlan}">
+                <Border Background="#F8FAFC"
+                        BorderBrush="#D8DADF"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="10">
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="{Binding UiText.PlanSummaryTitle}" FontWeight="SemiBold" Foreground="#334155"/>
+                    <TextBlock Text="{Binding SelectedDocumentExecutionPlanSummary}" Foreground="#475569" TextWrapping="Wrap"/>
+                  </StackPanel>
+                </Border>
+                <Border Grid.Row="1"
+                        Background="#FFF8E1"
+                        BorderBrush="#E8D39B"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="10">
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="{Binding UiText.PlanFindingsTitle}" FontWeight="SemiBold" Foreground="#7A5C00"/>
+                    <TextBlock Text="{Binding SelectedDocumentExecutionPlanFindingsText}" Foreground="#7A5C00" TextWrapping="Wrap"/>
+                  </StackPanel>
+                </Border>
+                <TextBox Grid.Row="2"
+                         Text="{Binding SelectedDocumentExecutionPlanText}"
+                         IsReadOnly="True"
+                         AcceptsReturn="True"
+                         TextWrapping="NoWrap"
+                         FontFamily="Consolas"/>
+              </Grid>
+              </Grid>
+            </Grid>
+            <Border Background="#B3FFFFFF"
+                    CornerRadius="8"
+                    IsVisible="{Binding SelectedDocumentIsBusy}">
+              <StackPanel HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Spacing="10">
+                <ProgressBar Width="220" IsIndeterminate="True"/>
+                <TextBlock Text="{Binding SelectedDocumentBusyText}"
+                           Foreground="#334155"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+              </StackPanel>
+            </Border>
+          </Grid>
+        </Border>
+
+        <Canvas x:Name="CompletionOverlay"
+                Grid.Row="0"
+                Grid.RowSpan="5"
+                Panel.ZIndex="1000"
+                IsHitTestVisible="{Binding IsCompletionOpen}">
+          <Border x:Name="CompletionPopup"
+                  IsVisible="{Binding IsCompletionOpen}"
+                  Width="380"
+                  MaxHeight="280"
+                  Background="#FFF"
+                  BorderBrush="#CBD5E1"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="5">
+            <ListBox x:Name="CompletionListBox"
+                     ItemsSource="{Binding CompletionItems}"
+                     SelectedItem="{Binding SelectedCompletionItem}"
+                     DoubleTapped="CompletionListBox_DoubleTapped"
+                     KeyDown="CompletionListBox_KeyDown">
+              <ListBox.ItemTemplate>
+                <DataTemplate DataType="appModels:CompletionItem">
+                  <Grid ColumnDefinitions="*,Auto" Margin="6,4" ToolTip.Tip="{Binding PopupToolTip}">
+                    <StackPanel Spacing="1">
+                      <TextBlock Text="{Binding PrimaryText}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                      <TextBlock Text="{Binding SecondaryText}" FontSize="11" Foreground="#315C86" IsVisible="{Binding HasSecondaryText}" TextTrimming="CharacterEllipsis"/>
+                      <TextBlock Text="{Binding ContextText}" FontSize="10" Foreground="#64748B" IsVisible="{Binding HasContextText}" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                    <Border Grid.Column="1" Background="{Binding KindBrush}" CornerRadius="6" Padding="8,2" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding KindBadgeText}" FontSize="11" Foreground="{Binding KindForeground}"/>
+                    </Border>
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Border>
+        </Canvas>
+      </Grid>
+    </Grid>
+
+    <Border Grid.Row="3" Background="#FBFBFC" BorderBrush="#D8DADF" BorderThickness="0,1,0,0" Padding="10,4">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="20">
+        <TextBlock Text="{Binding ConnectionStatus}" Foreground="#4B5563" FontSize="11"/>
+        <TextBlock Grid.Column="1" Text="{Binding SelectedDocumentExecutionStatus}" Foreground="#4B5563" FontSize="11"/>
+        <TextBlock Grid.Column="2" Text="{Binding SelectedDocumentRowCountDisplay}" Foreground="#4B5563" FontSize="11"/>
+        <TextBlock Grid.Column="3" Text="{Binding SelectedDocumentDurationDisplay}" Foreground="#4B5563" FontSize="11"/>
+      </Grid>
+    </Border>
+
+    <Border Grid.RowSpan="4" Background="#660E2338" IsVisible="{Binding IsConnectionDialogOpen}">
+      <Grid>
+        <Border Width="1060"
+                Height="760"
+                Padding="18"
+                Background="#FFFFFF"
+                CornerRadius="18"
+                BorderBrush="#C8DBF0"
+                BorderThickness="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+          <Grid RowDefinitions="Auto,Auto,*">
+            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+              <StackPanel Spacing="2">
+                <TextBlock Text="{Binding UiText.SavedConnections}" FontSize="19" FontWeight="SemiBold" Foreground="#1F5F9B"/>
+                <TextBlock Text="{Binding ConnectionEditorHintText}" FontSize="11" Foreground="#64748B"/>
+              </StackPanel>
+              <Button Grid.Column="1"
+                      Content="{Binding UiText.Close}"
+                      Classes="toolbar"
+                      Click="CloseConnectionDialogButton_Click"/>
+            </Grid>
+
+            <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto,*" ColumnSpacing="8" Margin="0,0,0,12">
+              <Button Grid.Column="0"
+                      Content="{Binding UiText.NewConnection}"
+                      Classes="toolbar"
+                      IsEnabled="{Binding ConnectionEditorCanStartNew}"
+                      Click="NewConnectionButton_Click"/>
+              <Button Grid.Column="1"
+                      Content="{Binding UiText.ImportConnections}"
+                      Classes="toolbar"
+                      Click="ImportConnectionsButton_Click"/>
+              <Button Grid.Column="2"
+                      Content="{Binding UiText.ExportConnections}"
+                      Classes="toolbar"
+                      Click="ExportConnectionsButton_Click"/>
+            </Grid>
+
+            <Grid Grid.Row="2" ColumnDefinitions="285,*" ColumnSpacing="16">
+              <Border Grid.Column="0" Background="#F8FBFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="12" Padding="12">
+                <Grid RowDefinitions="Auto,Auto,*">
+                  <TextBox Watermark="{Binding UiText.SearchConnections}"
+                           Text="{Binding ConnectionSearchText, Mode=TwoWay}"
+                           Margin="0,0,0,8"/>
+                  <Border Grid.Row="1"
+                          Background="#FFFFFF"
+                          BorderBrush="#E2E8F0"
+                          BorderThickness="1"
+                          CornerRadius="10"
+                          Padding="8,6"
+                          Margin="0,0,0,8"
+                          IsVisible="{Binding HasRecentConnections}">
+                    <StackPanel Spacing="6">
+                      <TextBlock Text="{Binding UiText.RecentConnections}" FontWeight="SemiBold" Foreground="#475569"/>
+                      <ItemsControl ItemsSource="{Binding RecentConnectionProfiles}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate DataType="models:ConnectionProfile">
+                            <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="8" Margin="0,1">
+                              <Border Background="{Binding RiskAccentBrush}" CornerRadius="3"/>
+                              <StackPanel Grid.Column="1" Spacing="1">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="11"/>
+                                <TextBlock Text="{Binding ProviderName}" FontSize="10" Foreground="#315C86"/>
+                                <TextBlock FontSize="10" Foreground="#64748B">
+                                  <Run Text="{Binding Server}"/>
+                                  <Run Text=" / "/>
+                                  <Run Text="{Binding Database}"/>
+                                </TextBlock>
+                                <TextBlock Text="{Binding LastUsedDisplay}" FontSize="10" Foreground="#64748B"/>
+                              </StackPanel>
+                              <TextBlock Grid.Column="2" Text="{Binding EnvironmentTag}" FontSize="10" Foreground="#475569" VerticalAlignment="Center"/>
+                            </Grid>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+                  </Border>
+                  <ListBox x:Name="ConnectionListBox"
+                           Grid.Row="2"
+                           ItemsSource="{Binding FilteredConnectionProfiles}"
+                           SelectedItem="{Binding SelectedConnectionProfile}"
+                           IsEnabled="{Binding ConnectionEditorCanChangeSelection}"
+                           SelectionChanged="ConnectionListBox_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                      <DataTemplate DataType="models:ConnectionProfile">
+                        <Border Margin="4,4" CornerRadius="9" BorderBrush="#D7E5F2" BorderThickness="1" Background="#FBFCFE">
+                          <Grid ColumnDefinitions="4,*">
+                            <Border Background="{Binding RiskAccentBrush}" CornerRadius="9,0,0,9"/>
+                            <StackPanel Grid.Column="1" Spacing="3" Margin="8,7">
+                              <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                                <TextBlock Text="★" Foreground="#D97706" IsVisible="{Binding IsFavorite}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold"/>
+                                <Border Grid.Column="2" Background="#EEF2FF" CornerRadius="6" Padding="6,1">
+                                  <TextBlock Text="{Binding CapabilityLevel}" FontSize="10" Foreground="#334155"/>
+                                </Border>
+                              </Grid>
+                              <TextBlock Text="{Binding ProviderName}" Foreground="#6D88A4" FontSize="12"/>
+                              <TextBlock Text="{Binding Server}" Foreground="#475569" FontSize="11"/>
+                              <TextBlock Text="{Binding Database}" Foreground="#64748B" FontSize="10"/>
+                              <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                                <Border Background="{Binding EnvironmentBadgeBrush}" CornerRadius="6" Padding="6,1">
+                                  <TextBlock Text="{Binding EnvironmentTag}" FontSize="10" Foreground="{Binding EnvironmentBadgeForeground}"/>
+                                </Border>
+                                <TextBlock Grid.Column="1" Text="{Binding GroupName}" Foreground="#64748B" FontSize="10"/>
+                                <TextBlock Grid.Column="2" Text="{Binding LastUsedDisplay}" Foreground="#64748B" FontSize="10"/>
+                              </Grid>
+                            </StackPanel>
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+                </Grid>
+              </Border>
+
+              <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+                <Border Background="#F3F9FF" BorderBrush="#CFE4F8" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,0,0,10">
+                  <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                    <Border Background="#E0F2FE" BorderBrush="#B9D8F4" BorderThickness="1" CornerRadius="9" Padding="10,4">
+                      <TextBlock Text="{Binding ConnectionEditorModeText}" FontWeight="SemiBold" Foreground="#1F5F9B"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Spacing="2">
+                      <TextBlock Text="{Binding ConnectionEditorTitleText}" FontSize="16" FontWeight="SemiBold" Foreground="#0F172A"/>
+                      <TextBlock Text="{Binding ConnectionEditorHintText}" FontSize="11" Foreground="#64748B"/>
+                    </StackPanel>
+                  </Grid>
+                </Border>
+
+                <Border Grid.Row="1"
+                        Background="#F8FBFF"
+                        BorderBrush="#D7E5F2"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="24"
+                        IsVisible="{Binding ConnectionEditorHasNoProfile}">
+                  <TextBlock Text="{Binding ConnectionEditorEmptyText}"
+                             FontSize="14"
+                             Foreground="#64748B"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"
+                             TextWrapping="Wrap"/>
+                </Border>
+
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              IsVisible="{Binding ConnectionEditorHasProfile}">
+                  <StackPanel Spacing="10" Margin="0,0,4,0">
+                    <Border Background="#FFFFFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="12" Padding="12">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding ConnectionEditorBasicSectionText}" FontWeight="SemiBold" Foreground="#1F5F9B"/>
+                        <TextBox Watermark="{Binding UiText.ConnectionName}"
+                                 IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                 Text="{Binding ConnectionEditorDraft.Name, Mode=TwoWay}"/>
+                        <Grid ColumnDefinitions="*,120,110" ColumnSpacing="8">
+                          <TextBox Grid.Column="0"
+                                   Watermark="{Binding UiText.GroupName}"
+                                   IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                   Text="{Binding ConnectionEditorDraft.GroupName, Mode=TwoWay}"/>
+                          <ComboBox Grid.Column="1"
+                                    ItemsSource="{Binding EnvironmentTagOptions}"
+                                    SelectedItem="{Binding ConnectionEditorDraft.EnvironmentTag, Mode=TwoWay}"
+                                    IsEnabled="{Binding ConnectionEditorCanEditFields}"/>
+                          <CheckBox Grid.Column="2"
+                                    Content="{Binding UiText.Favorite}"
+                                    IsChecked="{Binding ConnectionEditorDraft.IsFavorite, Mode=TwoWay}"
+                                    IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                    VerticalAlignment="Center"/>
+                        </Grid>
+                      </StackPanel>
+                    </Border>
+
+                    <Border Background="#FFFFFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="12" Padding="12">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding ConnectionEditorProviderSectionText}" FontWeight="SemiBold" Foreground="#1F5F9B"/>
+                        <ComboBox x:Name="ProviderComboBox"
+                                  ItemsSource="{Binding Providers}"
+                                  IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                  SelectionChanged="ProviderComboBox_SelectionChanged">
+                          <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="models:DatabaseProviderDefinition">
+                              <TextBlock Text="{Binding DisplayName}"/>
+                            </DataTemplate>
+                          </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Grid ColumnDefinitions="120,*" ColumnSpacing="8">
+                          <TextBlock Text="{Binding UiText.DriverFamily}" Foreground="#64748B"/>
+                          <TextBlock Grid.Column="1" Text="{Binding ConnectionEditorDraft.ProviderName}"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="120,*" ColumnSpacing="8">
+                          <TextBlock Text="{Binding UiText.CapabilityLevel}" Foreground="#64748B"/>
+                          <TextBlock Grid.Column="1" Text="{Binding ConnectionEditorDraft.CapabilityLevel}"/>
+                        </Grid>
+                      </StackPanel>
+                    </Border>
+
+                    <Border Background="#FFFFFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="12" Padding="12">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding ConnectionEditorEndpointSectionText}" FontWeight="SemiBold" Foreground="#1F5F9B"/>
+                        <StackPanel Spacing="8" IsVisible="{Binding IsServerDatabaseProfileSelected}">
+                          <TextBlock Text="{Binding ServerFieldLabel}" Foreground="#4B5563"/>
+                          <Grid ColumnDefinitions="*,110" ColumnSpacing="8">
+                            <TextBox Grid.Column="0"
+                                     Watermark="{Binding UiText.Server}"
+                                     IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                     Text="{Binding ConnectionEditorDraft.Server, Mode=TwoWay}"/>
+                            <TextBox Grid.Column="1"
+                                     Watermark="{Binding SelectedProviderPortHint}"
+                                     IsVisible="{Binding IsGenericPortVisible}"
+                                     IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                     Text="{Binding ConnectionEditorDraft.Port, Mode=TwoWay}"/>
+                          </Grid>
+                          <TextBlock Text="{Binding DatabaseFieldLabel}" Foreground="#4B5563"/>
+                          <TextBox Watermark="{Binding UiText.Database}"
+                                   IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                   Text="{Binding ConnectionEditorDraft.Database, Mode=TwoWay}"/>
+                        </StackPanel>
+                        <StackPanel Spacing="8" IsVisible="{Binding IsMongoProfileSelected}">
+                          <TextBlock Text="{Binding UiText.Host}" Foreground="#4B5563"/>
+                          <Grid ColumnDefinitions="*,110" ColumnSpacing="8">
+                            <TextBox Grid.Column="0"
+                                     Watermark="{Binding UiText.Host}"
+                                     IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                     Text="{Binding ConnectionEditorDraft.Server, Mode=TwoWay}"/>
+                            <TextBox Grid.Column="1"
+                                     Watermark="27017"
+                                     IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                     Text="{Binding ConnectionEditorDraft.Port, Mode=TwoWay}"/>
+                          </Grid>
+                          <TextBlock Text="{Binding UiText.MongoDatabaseAuthSource}" Foreground="#4B5563"/>
+                          <TextBox Watermark="{Binding UiText.MongoDatabaseAuthSource}"
+                                   IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                   Text="{Binding ConnectionEditorDraft.Database, Mode=TwoWay}"/>
+                        </StackPanel>
+                        <StackPanel Spacing="8" IsVisible="{Binding IsOracleProfileSelected}">
+                          <TextBlock Text="{Binding UiText.OracleConnectionMode}" Foreground="#4B5563"/>
+                          <ComboBox x:Name="OracleModeComboBox"
+                                    ItemsSource="{Binding OracleConnectionModes}"
+                                    SelectedItem="{Binding ConnectionEditorDraft.OracleConnectionMode, Mode=TwoWay}"
+                                    IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                    SelectionChanged="OracleModeComboBox_SelectionChanged"/>
+                          <Border Background="#F8FBFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="8" Padding="10" IsVisible="{Binding IsOracleHostMode}">
+                            <StackPanel Spacing="8">
+                              <TextBlock Text="{Binding UiText.OracleHostSectionTitle}" FontWeight="SemiBold" Foreground="#315C86"/>
+                              <TextBlock Text="{Binding UiText.OracleHostSectionDescription}" FontSize="12" Foreground="#6D88A4"/>
+                              <Grid ColumnDefinitions="*,90" ColumnSpacing="8">
+                                <TextBox Grid.Column="0"
+                                         Watermark="{Binding UiText.OracleHost}"
+                                         IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                         Text="{Binding ConnectionEditorDraft.OracleHost, Mode=TwoWay}"/>
+                                <TextBox Grid.Column="1"
+                                         Watermark="1521"
+                                         IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                         Text="{Binding ConnectionEditorDraft.OraclePort, Mode=TwoWay}"/>
+                              </Grid>
+                              <TextBox Watermark="{Binding UiText.ServiceName}"
+                                       IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                       Text="{Binding ConnectionEditorDraft.OracleServiceName, Mode=TwoWay}"/>
+                            </StackPanel>
+                          </Border>
+                          <Border Background="#F8FBFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="8" Padding="10" IsVisible="{Binding IsOracleTnsMode}">
+                            <StackPanel Spacing="8">
+                              <TextBlock Text="{Binding UiText.OracleTnsSectionTitle}" FontWeight="SemiBold" Foreground="#315C86"/>
+                              <TextBlock Text="{Binding UiText.OracleTnsSectionDescription}" FontSize="12" Foreground="#6D88A4"/>
+                              <TextBox Watermark="{Binding UiText.OracleTnsName}"
+                                       IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                       Text="{Binding ConnectionEditorDraft.OracleTnsName, Mode=TwoWay}"/>
+                            </StackPanel>
+                          </Border>
+                        </StackPanel>
+                      </StackPanel>
+                    </Border>
+
+                    <Border Background="#FFFFFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="12" Padding="12">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding ConnectionEditorAuthSectionText}" FontWeight="SemiBold" Foreground="#1F5F9B"/>
+                        <ComboBox ItemsSource="{Binding AuthenticationModeOptions}"
+                                  SelectedItem="{Binding ConnectionEditorDraft.AuthenticationMode, Mode=TwoWay}"
+                                  IsEnabled="{Binding ConnectionEditorCanEditFields}"/>
+                        <TextBox Watermark="{Binding UiText.UserName}"
+                                 IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                 Text="{Binding ConnectionEditorDraft.UserName, Mode=TwoWay}"/>
+                        <TextBox x:Name="PasswordTextBox"
+                                 Watermark="{Binding UiText.Password}"
+                                 PasswordChar="*"
+                                 IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                 Text="{Binding ConnectionEditorDraft.Password, Mode=TwoWay}"
+                                 TextChanged="PasswordTextBox_TextChanged"/>
+                        <CheckBox Content="{Binding UiText.RememberPassword}"
+                                  IsChecked="{Binding ConnectionEditorDraft.SavePassword, Mode=TwoWay}"
+                                  IsEnabled="{Binding ConnectionEditorCanEditFields}"/>
+                        <TextBox Watermark="{Binding UiText.Schema}"
+                                 IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                 Text="{Binding ConnectionEditorDraft.Schema, Mode=TwoWay}"/>
+                      </StackPanel>
+                    </Border>
+
+                    <Border Background="#FFFFFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="12" Padding="12">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding ConnectionEditorAdvancedSectionText}" FontWeight="SemiBold" Foreground="#1F5F9B"/>
+                        <TextBox Watermark="{Binding UiText.ManagedDriverPath}"
+                                 IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                 Text="{Binding ConnectionEditorDraft.ManagedDriverPath, Mode=TwoWay}"/>
+                        <TextBox Watermark="{Binding UiText.NativeDependencyPath}"
+                                 IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                 Text="{Binding ConnectionEditorDraft.NativeLibraryPath, Mode=TwoWay}"/>
+                        <TextBox Watermark="{Binding UiText.AdvancedOptions}"
+                                 IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                 Text="{Binding ConnectionEditorDraft.AdvancedOptions, Mode=TwoWay}"
+                                 AcceptsReturn="True"
+                                 Height="76"/>
+                      </StackPanel>
+                    </Border>
+
+                    <Border Background="#FFFFFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="12" Padding="12">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding ConnectionEditorNotesSectionText}" FontWeight="SemiBold" Foreground="#1F5F9B"/>
+                        <TextBox Watermark="{Binding UiText.Notes}"
+                                 IsEnabled="{Binding ConnectionEditorCanEditFields}"
+                                 Text="{Binding ConnectionEditorDraft.Notes, Mode=TwoWay}"
+                                 AcceptsReturn="True"
+                                 Height="72"/>
+                      </StackPanel>
+                    </Border>
+                  </StackPanel>
+                </ScrollViewer>
+
+                <Border Grid.Row="2"
+                        Background="#F8FBFF"
+                        BorderBrush="#D7E5F2"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="10"
+                        Margin="0,10,0,0"
+                        IsVisible="{Binding ConnectionEditorHasProfile}">
+                  <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto" ColumnSpacing="8">
+                    <Button Grid.Column="0"
+                            Content="{Binding UiText.Edit}"
+                            Classes="toolbar"
+                            IsVisible="{Binding ConnectionEditorShowViewActions}"
+                            IsEnabled="{Binding ConnectionEditorCanEditSelected}"
+                            Click="EditConnectionButton_Click"/>
+                    <Button Grid.Column="1"
+                            Content="{Binding UiText.CloneConnection}"
+                            Classes="toolbar"
+                            IsVisible="{Binding ConnectionEditorShowViewActions}"
+                            IsEnabled="{Binding ConnectionEditorCanDuplicateSelected}"
+                            Click="DuplicateConnectionButton_Click"/>
+                    <Button Grid.Column="2"
+                            Content="{Binding UiText.DeleteConnection}"
+                            Classes="toolbar"
+                            IsVisible="{Binding ConnectionEditorShowViewActions}"
+                            IsEnabled="{Binding ConnectionEditorCanDeleteSelected}"
+                            Click="DeleteConnectionButton_Click"/>
+                    <Button Grid.Column="4"
+                            Content="{Binding UiText.UseSelected}"
+                            Classes="toolbar"
+                            IsVisible="{Binding ConnectionEditorShowViewActions}"
+                            IsEnabled="{Binding ConnectionEditorCanUseSelected}"
+                            Click="UseConnectionButton_Click"/>
+                    <Button Grid.Column="5"
+                            Content="{Binding UiText.TestConnection}"
+                            Classes="toolbar"
+                            IsEnabled="{Binding ConnectionEditorCanTest}"
+                            Click="TestConnectionButton_Click"/>
+                    <StackPanel Grid.Column="6" Orientation="Horizontal" Spacing="8" IsVisible="{Binding ConnectionEditorShowEditActions}">
+                      <Button Content="{Binding UiText.SaveConnection}"
+                              Classes="toolbar"
+                              IsEnabled="{Binding ConnectionEditorCanSave}"
+                              Click="SaveConnectionButton_Click"/>
+                      <Button Content="{Binding UiText.Cancel}"
+                              Classes="toolbar"
+                              Click="CancelConnectionEditButton_Click"/>
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Border>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
+

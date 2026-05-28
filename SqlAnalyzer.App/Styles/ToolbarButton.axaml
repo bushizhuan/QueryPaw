@@ -1,0 +1,165 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Style Selector="Button.toolbar">
+    <Setter Property="Background" Value="#F0F7FF" />
+    <Setter Property="BorderBrush" Value="#C9DDF2" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Foreground" Value="#24527F" />
+    <Setter Property="Padding" Value="9,4" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="MinHeight" Value="26" />
+  </Style>
+  <Style Selector="Button.toolbar:pointerover">
+    <Setter Property="Background" Value="#E6F2FF" />
+    <Setter Property="BorderBrush" Value="#9ECBF3" />
+  </Style>
+  <Style Selector="Button.toolbar:pressed">
+    <Setter Property="Background" Value="#D8EBFF" />
+  </Style>
+
+  <Style Selector="ComboBox.query-selector">
+    <Setter Property="Background" Value="#F7FBFF" />
+    <Setter Property="BorderBrush" Value="#B9D8F4" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="8,2" />
+    <Setter Property="MinHeight" Value="30" />
+    <Setter Property="Foreground" Value="#1E5F99" />
+  </Style>
+  <Style Selector="ComboBox.query-selector:pointerover">
+    <Setter Property="Background" Value="#EEF7FF" />
+    <Setter Property="BorderBrush" Value="#8FC2EE" />
+  </Style>
+
+  <Style Selector="Button.query-action">
+    <Setter Property="Background" Value="#F7FBFF" />
+    <Setter Property="BorderBrush" Value="#CFE4F8" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Foreground" Value="#1F5F9B" />
+    <Setter Property="Padding" Value="8,3" />
+    <Setter Property="MinHeight" Value="30" />
+    <Setter Property="FontSize" Value="11" />
+  </Style>
+  <Style Selector="Button.query-action:pointerover">
+    <Setter Property="Background" Value="#EAF5FF" />
+    <Setter Property="BorderBrush" Value="#9CCAF2" />
+  </Style>
+  <Style Selector="Button.query-action:pressed">
+    <Setter Property="Background" Value="#DCEEFF" />
+    <Setter Property="BorderBrush" Value="#78B6EA" />
+  </Style>
+  <Style Selector="Button.query-action.primary">
+    <Setter Property="Background" Value="#2F80D8" />
+    <Setter Property="BorderBrush" Value="#2B74C4" />
+    <Setter Property="Foreground" Value="#FFFFFF" />
+  </Style>
+  <Style Selector="Button.query-action.primary:pointerover">
+    <Setter Property="Background" Value="#1F73C8" />
+    <Setter Property="BorderBrush" Value="#1F73C8" />
+  </Style>
+  <Style Selector="Button.query-action:disabled">
+    <Setter Property="Background" Value="#F4F7FA" />
+    <Setter Property="BorderBrush" Value="#D7E2EC" />
+    <Setter Property="Foreground" Value="#9AA8B6" />
+  </Style>
+  <Style Selector="Button.query-icon-action">
+    <Setter Property="Background" Value="#F7FBFF" />
+    <Setter Property="BorderBrush" Value="#CFE4F8" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="9" />
+    <Setter Property="Padding" Value="6" />
+    <Setter Property="MinWidth" Value="36" />
+    <Setter Property="MinHeight" Value="34" />
+  </Style>
+  <Style Selector="Button.query-icon-action:pointerover">
+    <Setter Property="Background" Value="#EAF5FF" />
+    <Setter Property="BorderBrush" Value="#9CCAF2" />
+  </Style>
+  <Style Selector="Button.query-icon-action:pressed">
+    <Setter Property="Background" Value="#DCEEFF" />
+    <Setter Property="BorderBrush" Value="#78B6EA" />
+  </Style>
+  <Style Selector="Button.query-icon-action:disabled">
+    <Setter Property="Background" Value="#F4F7FA" />
+    <Setter Property="BorderBrush" Value="#D7E2EC" />
+    <Setter Property="Opacity" Value="0.68" />
+  </Style>
+  <Style Selector="Button.document-tab-close">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="2" />
+    <Setter Property="MinWidth" Value="18" />
+    <Setter Property="MinHeight" Value="18" />
+    <Setter Property="Width" Value="18" />
+    <Setter Property="Height" Value="18" />
+  </Style>
+  <Style Selector="Button.document-tab-close:pointerover">
+    <Setter Property="Background" Value="#EAF5FF" />
+    <Setter Property="BorderBrush" Value="#B9D8F4" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+  <Style Selector="Button.document-tab-close:pressed">
+    <Setter Property="Background" Value="#DCEEFF" />
+    <Setter Property="BorderBrush" Value="#86BDEA" />
+  </Style>
+
+  <Style Selector="Button.menu-button">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="Foreground" Value="#334155" />
+    <Setter Property="Padding" Value="10,4" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="26" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="Button.menu-button:pointerover">
+    <Setter Property="Background" Value="#EAF5FF" />
+    <Setter Property="Foreground" Value="#0F4D82" />
+  </Style>
+  <Style Selector="Button.menu-button:pressed">
+    <Setter Property="Background" Value="#DCEEFF" />
+    <Setter Property="Foreground" Value="#0B4676" />
+  </Style>
+
+  <Style Selector="Button.nav-toolbar">
+    <Setter Property="Background" Value="#F7FBFF" />
+    <Setter Property="BorderBrush" Value="#CFE4F8" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="9" />
+    <Setter Property="Foreground" Value="#1F5F9B" />
+    <Setter Property="Padding" Value="8,4" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="30" />
+    <Setter Property="FontSize" Value="11" />
+  </Style>
+  <Style Selector="Button.nav-toolbar:pointerover">
+    <Setter Property="Background" Value="#EAF5FF" />
+    <Setter Property="BorderBrush" Value="#9CCAF2" />
+    <Setter Property="Foreground" Value="#0F4D82" />
+  </Style>
+  <Style Selector="Button.nav-toolbar:pressed">
+    <Setter Property="Background" Value="#DCEEFF" />
+    <Setter Property="BorderBrush" Value="#78B6EA" />
+  </Style>
+  <Style Selector="Button.nav-toolbar:disabled">
+    <Setter Property="Background" Value="#F4F7FA" />
+    <Setter Property="BorderBrush" Value="#D7E2EC" />
+    <Setter Property="Foreground" Value="#9AA8B6" />
+  </Style>
+
+  <Style Selector="Border.tool-glyph">
+    <Setter Property="Width" Value="20" />
+    <Setter Property="Height" Value="20" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Background" Value="#EAF5FF" />
+    <Setter Property="BorderBrush" Value="#C4DDF4" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+</Styles>
