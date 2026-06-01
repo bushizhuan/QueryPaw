@@ -417,13 +417,21 @@ public sealed class ResultWorkspaceController
         _isDraggingCellSelection = false;
         _isDraggingHeaderSelection = false;
     }
-    public bool TryGetHeaderColumnAtPoint(Visual relativeTo, Point point, out int columnIndex)
+    public bool TryGetHeaderColumnAtPoint(Visual relativeTo, Point point, out int columnIndex, bool ignoreVerticalBounds = false)
     {
         double bestDistance = double.MaxValue;
         int bestColumnIndex = -1;
         foreach ((int key, Border border) in _headerBorders)
         {
-            if (!TryBuildHitRect(border, relativeTo, out Rect rect) || !rect.Contains(point))
+            if (!TryBuildHitRect(border, relativeTo, out Rect rect))
+            {
+                continue;
+            }
+
+            bool containsPoint = ignoreVerticalBounds
+                ? point.X >= rect.Left && point.X <= rect.Right
+                : rect.Contains(point);
+            if (!containsPoint)
             {
                 continue;
             }

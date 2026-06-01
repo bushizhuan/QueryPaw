@@ -2824,7 +2824,7 @@ public partial class MainWindow : Window
 		Point position = e.GetPosition(relativeTo);
 		if (_resultWorkspaceController.IsDraggingHeaderSelection)
 		{
-			if (_resultWorkspaceController.TryGetHeaderColumnAtPoint(relativeTo, position, out var columnIndex) && columnIndex >= 0)
+			if (_resultWorkspaceController.TryGetHeaderColumnAtPoint(relativeTo, position, out var columnIndex, ignoreVerticalBounds: true) && columnIndex >= 0)
 			{
 				EndInlineCellEdit();
 				_resultWorkspaceController.UpdateHeaderSelection(selectedDocumentSelectedResultSet, columnIndex, isLeftButtonPressed: true);
@@ -4016,7 +4016,17 @@ public partial class MainWindow : Window
 			if (selectedDocumentSelectedResultSet != null)
 			{
 				EndInlineCellEdit();
-				_resultWorkspaceController.SelectColumn(selectedDocumentSelectedResultSet, columnIndex);
+				PointerPointProperties properties = e.GetCurrentPoint(this).Properties;
+				if (properties.IsLeftButtonPressed)
+				{
+					IInputElement captureTarget = (IInputElement?)ResultInteractionHost ?? this;
+					e.Pointer.Capture(captureTarget);
+					_resultWorkspaceController.BeginHeaderSelection(selectedDocumentSelectedResultSet, columnIndex);
+				}
+				else
+				{
+					_resultWorkspaceController.SelectColumn(selectedDocumentSelectedResultSet, columnIndex);
+				}
 				ViewModel.ClearSelectedDocumentValueDetail();
 				e.Handled = true;
 			}
