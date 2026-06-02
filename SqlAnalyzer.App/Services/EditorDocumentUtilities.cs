@@ -24,6 +24,8 @@ public static class EditorDocumentUtilities
             ModelFocusTableName = source.ModelFocusTableName ?? string.Empty,
             Content = source.Content ?? string.Empty,
             CaretOffset = source.CaretOffset,
+            ScrollOffsetX = source.ScrollOffsetX,
+            ScrollOffsetY = source.ScrollOffsetY,
             IsDirty = source.IsDirty,
             LastFileWriteTimeUtc = source.LastFileWriteTimeUtc
         };

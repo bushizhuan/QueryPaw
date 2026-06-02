@@ -17,6 +17,8 @@ public sealed class EditorDocument
     public string ModelFocusTableName { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
     public int CaretOffset { get; set; }
+    public double ScrollOffsetX { get; set; }
+    public double ScrollOffsetY { get; set; }
     public bool IsDirty { get; set; }
     public DateTimeOffset? LastFileWriteTimeUtc { get; set; }
 }

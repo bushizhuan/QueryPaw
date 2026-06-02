@@ -121,6 +121,8 @@ public partial class MainWindow : Window
 
 	private Vector _lastCompletionPopupScrollOffset;
 
+	private string _activeTextEditorDocumentId = string.Empty;
+
 	private bool _isPanningModelDiagram;
 
 	private Point _lastModelDiagramPanPoint;
@@ -240,6 +242,7 @@ public partial class MainWindow : Window
 			ModelDiagramScrollViewer.PropertyChanged += ModelDiagramScrollViewer_PropertyChanged;
 		}
 		base.DataContextChanged += MainWindow_DataContextChanged;
+		base.Closing += (_, _) => CaptureSelectedDocumentEditorState();
 		AttachViewModel(TryGetViewModel());
 		InitializeEditor();
 		EditorTextBox.AddHandler(InputElement.KeyDownEvent, EditorTextBox_PreviewKeyDown, RoutingStrategies.Tunnel);
@@ -2085,6 +2088,7 @@ public partial class MainWindow : Window
 				return;
 			}
 
+			CaptureSelectedDocumentEditorState();
 			await ViewModel.PersistAsync(cancellationToken);
 		}
 		catch (OperationCanceledException)
@@ -2104,6 +2108,7 @@ public partial class MainWindow : Window
 		Interlocked.Increment(ref _sessionAutosaveVersion);
 		try
 		{
+			CaptureSelectedDocumentEditorState();
 			await ViewModel.PersistAsync();
 		}
 		catch (Exception ex)
@@ -2237,16 +2242,19 @@ public partial class MainWindow : Window
 		{
 			return;
 		}
+		CaptureEditorDocumentState(e.RemovedItems.OfType<EditorDocument>().FirstOrDefault());
 		HideCompletionPopup();
 		UpdateResultWorkspaceVisibility();
 		if (viewModel.SelectedDocumentIsCommentMaintenance)
 		{
 			_lastTextEditorDocumentKind = string.Empty;
+			_activeTextEditorDocumentId = string.Empty;
 			return;
 		}
 		if (viewModel.SelectedDocumentIsModelDiagram)
 		{
 			_lastTextEditorDocumentKind = string.Empty;
+			_activeTextEditorDocumentId = string.Empty;
 			if (!viewModel.SelectedModelDiagramIsLoaded)
 			{
 				await viewModel.LoadSelectedModelDiagramAsync();
@@ -3571,11 +3579,13 @@ public partial class MainWindow : Window
 
 	private void SyncEditorFromDocument()
 	{
-		if (!ViewModel.SelectedDocumentUsesTextEditor)
+		EditorDocument? document = ViewModel.SelectedDocument;
+		if (!ViewModel.SelectedDocumentUsesTextEditor || document == null)
 		{
+			_activeTextEditorDocumentId = string.Empty;
 			return;
 		}
-		string documentText = ViewModel.SelectedDocument?.Content ?? string.Empty;
+		string documentText = document.Content ?? string.Empty;
 		if (!string.Equals(EditorTextBox.Text ?? string.Empty, documentText, StringComparison.Ordinal))
 		{
 			RunWithoutCompletion(delegate
@@ -3583,8 +3593,59 @@ public partial class MainWindow : Window
 				EditorTextBox.Text = documentText;
 			});
 		}
-		int caretOffset = Math.Clamp(ViewModel.SelectedDocument?.CaretOffset ?? 0, 0, (EditorTextBox.Text ?? string.Empty).Length);
+		int caretOffset = Math.Clamp(document.CaretOffset, 0, (EditorTextBox.Text ?? string.Empty).Length);
 		EditorTextBox.CaretOffset = caretOffset;
+		_activeTextEditorDocumentId = document.Id;
+		RestoreEditorScrollOffset(document);
+	}
+
+	private void CaptureSelectedDocumentEditorState()
+	{
+		CaptureEditorDocumentState(ViewModel.SelectedDocument);
+	}
+
+	private void CaptureEditorDocumentState(EditorDocument? document)
+	{
+		if (document == null ||
+		    !DocumentUsesTextEditor(document) ||
+		    !string.Equals(_activeTextEditorDocumentId, document.Id, StringComparison.OrdinalIgnoreCase))
+		{
+			return;
+		}
+
+		string editorText = EditorTextBox.Text ?? string.Empty;
+		Vector scrollOffset = EditorTextBox.TextArea.TextView.ScrollOffset;
+		document.Content = editorText;
+		document.CaretOffset = Math.Clamp(EditorTextBox.CaretOffset, 0, editorText.Length);
+		document.ScrollOffsetX = Math.Max(0.0, scrollOffset.X);
+		document.ScrollOffsetY = Math.Max(0.0, scrollOffset.Y);
+	}
+
+	private void RestoreEditorScrollOffset(EditorDocument document)
+	{
+		Vector scrollOffset = new(Math.Max(0.0, document.ScrollOffsetX), Math.Max(0.0, document.ScrollOffsetY));
+		ApplyEditorScrollOffset(document.Id, scrollOffset);
+		Dispatcher.UIThread.Post(
+			() => ApplyEditorScrollOffset(document.Id, scrollOffset),
+			DispatcherPriority.Background);
+	}
+
+	private void ApplyEditorScrollOffset(string documentId, Vector scrollOffset)
+	{
+		if (!string.Equals(ViewModel.SelectedDocument?.Id, documentId, StringComparison.OrdinalIgnoreCase) ||
+		    EditorTextBox.TextArea.TextView is not IScrollable scrollable)
+		{
+			return;
+		}
+
+		scrollable.Offset = scrollOffset;
+	}
+
+	private static bool DocumentUsesTextEditor(EditorDocument? document)
+	{
+		return document != null &&
+		       (string.Equals(document.DocumentKind, "Query", StringComparison.OrdinalIgnoreCase) ||
+		        string.Equals(document.DocumentKind, "ObjectEditor", StringComparison.OrdinalIgnoreCase));
 	}
 
 	private void CloseSearchPanel()
