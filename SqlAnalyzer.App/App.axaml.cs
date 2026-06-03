@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -24,6 +25,7 @@ public partial class App : Application
 {
     private static readonly string StartupLogPath =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SqlAnalyzer.Next", "startup.log");
+    private static readonly TimeSpan ShutdownPersistTimeout = TimeSpan.FromSeconds(3);
     private static void AppendStartupLog(string message)
     {
         string? directory = Path.GetDirectoryName(StartupLogPath);
@@ -34,6 +36,21 @@ public partial class App : Application
 
         File.AppendAllText(StartupLogPath, message + Environment.NewLine);
     }
+    private static void PersistForShutdown(MainWindowViewModel viewModel)
+    {
+        try
+        {
+            Task persistTask = Task.Run(() => viewModel.PersistAsync());
+            if (!persistTask.Wait(ShutdownPersistTimeout))
+            {
+                AppendStartupLog($"ShutdownPersistTimeout: {DateTime.Now:O}");
+            }
+        }
+        catch (Exception ex)
+        {
+            AppendStartupLog($"ShutdownPersistError: {ex}");
+        }
+    }
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -42,6 +59,7 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
             DisableAvaloniaDataAnnotationValidation();
 
             try
@@ -84,6 +102,39 @@ public partial class App : Application
                     DataContext = viewModel,
                 };
                 desktop.MainWindow = window;
+                bool shutdownRequested = false;
+                bool processExitRequested = false;
+                window.Closing += (_, _) =>
+                {
+                    if (processExitRequested)
+                    {
+                        return;
+                    }
+
+                    processExitRequested = true;
+                    try
+                    {
+                        AppendStartupLog($"MainWindowClosingExit: {DateTime.Now:O}");
+                        window.PrepareForShutdown();
+                        PersistForShutdown(viewModel);
+                    }
+                    finally
+                    {
+                        DatabaseDriverShutdown.ClearAllPools();
+                        Environment.Exit(0);
+                    }
+                };
+                window.Closed += (_, _) =>
+                {
+                    if (shutdownRequested)
+                    {
+                        return;
+                    }
+
+                    shutdownRequested = true;
+                    window.PrepareForShutdown();
+                    desktop.Shutdown(0);
+                };
                 AppendStartupLog($"MainWindowAssigned: {DateTime.Now:O}");
 
                 base.OnFrameworkInitializationCompleted();
@@ -108,7 +159,7 @@ public partial class App : Application
                     try
                     {
                         window.PrepareForShutdown();
-                        viewModel.PersistAsync().GetAwaiter().GetResult();
+                        PersistForShutdown(viewModel);
                     }
                     finally
                     {

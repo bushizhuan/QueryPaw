@@ -3425,16 +3425,38 @@ public partial class MainWindow : Window
 		{
 			string text = EditorTextBox.Text ?? string.Empty;
 			int caretOffset = EditorTextBox.CaretOffset;
-			var (updated, nextCaret) = _completionController.ApplyCompletion(text, caretOffset, selectedCompletionItem);
+			var (start, length, replacement, nextCaret) = _completionController.BuildCompletionEdit(text, caretOffset, selectedCompletionItem);
 			RunWithoutCompletion(delegate
 			{
-				EditorTextBox.Text = updated;
-				EditorTextBox.CaretOffset = nextCaret;
+				ReplaceEditorDocumentRange(start, length, replacement, nextCaret);
 			});
 			ViewModel.RegisterCompletionUsage(selectedCompletionItem);
 			ViewModel.IsCompletionOpen = false;
 			_lastCompletionPopupCaretOffset = -1;
 			FocusEditor();
+		}
+	}
+
+	private void ReplaceEditorDocumentRange(int start, int length, string replacement, int caretOffset)
+	{
+		string text = EditorTextBox.Text ?? string.Empty;
+		int safeStart = Math.Clamp(start, 0, text.Length);
+		int safeLength = Math.Clamp(length, 0, text.Length - safeStart);
+		if (EditorTextBox.Document != null)
+		{
+			EditorTextBox.Document.Replace(safeStart, safeLength, replacement);
+		}
+		else
+		{
+			EditorTextBox.Text = text.Remove(safeStart, safeLength).Insert(safeStart, replacement);
+		}
+
+		string updatedText = EditorTextBox.Text ?? string.Empty;
+		EditorTextBox.CaretOffset = Math.Clamp(caretOffset, 0, updatedText.Length);
+		if (ViewModel.SelectedDocument != null)
+		{
+			ViewModel.SelectedDocument.Content = updatedText;
+			ViewModel.SelectedDocument.CaretOffset = EditorTextBox.CaretOffset;
 		}
 	}
 

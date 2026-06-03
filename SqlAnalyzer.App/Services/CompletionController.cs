@@ -250,12 +250,18 @@ public sealed class CompletionController
         index = (index + offset + items.Count) % items.Count;
         return items[index];
     }
-    public (string UpdatedText, int CaretOffset) ApplyCompletion(string text, int caret, CompletionItem item)
+    public (int Start, int Length, string Replacement, int CaretOffset) BuildCompletionEdit(string text, int caret, CompletionItem item)
     {
         (int start, int length) = GetReplacementRange(text, caret);
         string insertText = string.IsNullOrWhiteSpace(item.InsertText) ? item.Text : item.InsertText;
-        string updated = text.Remove(start, length).Insert(start, insertText + " ");
-        return (updated, start + insertText.Length + 1);
+        string replacement = insertText + " ";
+        return (start, length, replacement, start + replacement.Length);
+    }
+    public (string UpdatedText, int CaretOffset) ApplyCompletion(string text, int caret, CompletionItem item)
+    {
+        (int start, int length, string replacement, int caretOffset) = BuildCompletionEdit(text, caret, item);
+        string updated = text.Remove(start, length).Insert(start, replacement);
+        return (updated, caretOffset);
     }
     public Thickness CalculatePopupMargin(Point popupOrigin, Rect parentBounds)
     {
