@@ -25,7 +25,7 @@
     "Replace":  "替换",
     "ConnectionManager":  "连接管理",
     "Language":  "语言",
-    "ShortcutHint":  "F5 / Ctrl+Enter 执行，Ctrl+S 保存，Ctrl+O 打开，Ctrl+F 查找。",
+    "ShortcutHint":  "F5 / Ctrl+Enter / Ctrl+Shift+R 执行，Ctrl+S 保存，Ctrl+O 打开，Ctrl+F 查找。",
     "Explorer":  "对象树",
     "ObjectExplorer":  "对象浏览器",
     "SearchWatermark":  "查找内容",

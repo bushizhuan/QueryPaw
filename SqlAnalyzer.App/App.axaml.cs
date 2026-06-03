@@ -11,6 +11,7 @@ using Avalonia.Threading;
 using SqlAnalyzer.App.ViewModels;
 using SqlAnalyzer.App.Views;
 using SqlAnalyzer.Core.Services;
+using SqlAnalyzer.Data.Common;
 using SqlAnalyzer.Data.Catalog;
 using SqlAnalyzer.Data.Execution;
 using SqlAnalyzer.Data.Explorer;
@@ -104,7 +105,15 @@ public partial class App : Application
 
                 desktop.Exit += (_, _) =>
                 {
-                    viewModel.PersistAsync().GetAwaiter().GetResult();
+                    try
+                    {
+                        window.PrepareForShutdown();
+                        viewModel.PersistAsync().GetAwaiter().GetResult();
+                    }
+                    finally
+                    {
+                        DatabaseDriverShutdown.ClearAllPools();
+                    }
                 };
 
                 return;

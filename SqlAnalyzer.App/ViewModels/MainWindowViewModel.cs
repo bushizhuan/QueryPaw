@@ -2467,6 +2467,36 @@ public class MainWindowViewModel : ViewModelBase
 		NotifySelectedDocumentStateChanged(rebuildWorkspaceTabs: false);
 	}
 
+	public void CancelAllDocumentExecutions()
+	{
+		bool changed = false;
+		foreach (DocumentExecutionState state in _workspaceStates.DocumentStates)
+		{
+			if (state.CancellationTokenSource != null)
+			{
+				state.CancellationTokenSource.Cancel();
+				changed = true;
+			}
+
+			if (state.IsExecuting)
+			{
+				state.ExecutionStatus = UiText.ExecutionCancelling;
+				changed = true;
+			}
+
+			if (state.IsRenderingResults)
+			{
+				state.IsRenderingResults = false;
+				changed = true;
+			}
+		}
+
+		if (changed)
+		{
+			NotifySelectedDocumentStateChanged(rebuildWorkspaceTabs: false);
+		}
+	}
+
 	public void SetSelectedDocumentResultWorkspaceOpen(bool isOpen)
 	{
 		if (SelectedDocument == null)

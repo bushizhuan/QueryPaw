@@ -123,6 +123,8 @@ public partial class MainWindow : Window
 
 	private string _activeTextEditorDocumentId = string.Empty;
 
+	private bool _isShuttingDown;
+
 	private bool _isPanningModelDiagram;
 
 	private Point _lastModelDiagramPanPoint;
@@ -242,7 +244,7 @@ public partial class MainWindow : Window
 			ModelDiagramScrollViewer.PropertyChanged += ModelDiagramScrollViewer_PropertyChanged;
 		}
 		base.DataContextChanged += MainWindow_DataContextChanged;
-		base.Closing += (_, _) => CaptureSelectedDocumentEditorState();
+		base.Closing += (_, _) => PrepareForShutdown();
 		AttachViewModel(TryGetViewModel());
 		InitializeEditor();
 		EditorTextBox.AddHandler(InputElement.KeyDownEvent, EditorTextBox_PreviewKeyDown, RoutingStrategies.Tunnel);
@@ -348,11 +350,21 @@ public partial class MainWindow : Window
 	}
 	private void RequestModelDiagramRender()
 	{
+		if (_isShuttingDown)
+		{
+			return;
+		}
+
 		if (!_modelDiagramRenderPending)
 		{
 			_modelDiagramRenderPending = true;
 			Dispatcher.UIThread.Post(delegate
 			{
+				if (_isShuttingDown)
+				{
+					return;
+				}
+
 				_modelDiagramRenderPending = false;
 				RenderModelDiagramCanvas();
 			}, DispatcherPriority.Background);
@@ -368,6 +380,11 @@ public partial class MainWindow : Window
 	}
 	private void ScheduleResultWorkspaceStateSync(bool renderIfNeeded = false)
 	{
+		if (_isShuttingDown)
+		{
+			return;
+		}
+
 		if (renderIfNeeded)
 		{
 			_resultWorkspaceRenderRequested = true;
@@ -379,6 +396,11 @@ public partial class MainWindow : Window
 		_resultWorkspaceStateSyncPending = true;
 		Dispatcher.UIThread.Post(delegate
 		{
+			if (_isShuttingDown)
+			{
+				return;
+			}
+
 			_resultWorkspaceStateSyncPending = false;
 			MainWindowViewModel? mainWindowViewModel = TryGetViewModel();
 			if (mainWindowViewModel == null)
@@ -415,6 +437,11 @@ public partial class MainWindow : Window
 	}
 	private void RequestResultGridRender(int delayMilliseconds = 0)
 	{
+		if (_isShuttingDown)
+		{
+			return;
+		}
+
 		int requestVersion = ++_scheduledResultRenderVersion;
 		Task.Run(async delegate
 		{
@@ -422,9 +449,14 @@ public partial class MainWindow : Window
 			{
 				await Task.Delay(delayMilliseconds);
 			}
+			if (_isShuttingDown)
+			{
+				return;
+			}
+
 			await Dispatcher.UIThread.InvokeAsync(delegate
 			{
-				if (requestVersion == _scheduledResultRenderVersion)
+				if (!_isShuttingDown && requestVersion == _scheduledResultRenderVersion)
 				{
 					MainWindowViewModel? mainWindowViewModel = TryGetViewModel();
 					if (mainWindowViewModel != null && CanRenderSelectedResultGrid(mainWindowViewModel))
@@ -435,6 +467,38 @@ public partial class MainWindow : Window
 			}, DispatcherPriority.Background);
 		});
 	}
+
+	public void PrepareForShutdown()
+	{
+		if (_isShuttingDown)
+		{
+			return;
+		}
+
+		_isShuttingDown = true;
+		if (TryGetViewModel() != null)
+		{
+			CaptureSelectedDocumentEditorState();
+			ViewModel.CancelAllDocumentExecutions();
+		}
+		CancelCompletionRefresh();
+		_resultRenderCancellationTokenSource?.Cancel();
+		_resultRenderCancellationTokenSource?.Dispose();
+		_resultRenderCancellationTokenSource = null;
+		_sessionAutosaveCancellationTokenSource?.Cancel();
+		_sessionAutosaveCancellationTokenSource?.Dispose();
+		_sessionAutosaveCancellationTokenSource = null;
+		Interlocked.Increment(ref _deferredCompletionRefreshVersion);
+		Interlocked.Increment(ref _sessionAutosaveVersion);
+		_resultRenderRequestVersion++;
+		_scheduledResultRenderVersion++;
+		_resultWorkspaceStateSyncPending = false;
+		_resultWorkspaceRenderRequested = false;
+		_modelDiagramRenderPending = false;
+		(_textMateInstallation as IDisposable)?.Dispose();
+		_textMateInstallation = null;
+	}
+
 	private static bool CanRenderSelectedResultGrid(MainWindowViewModel viewModel)
 	{
 		return viewModel.SelectedDocumentSelectedWorkspaceTabIsResult &&
@@ -1926,7 +1990,7 @@ public partial class MainWindow : Window
 
 	private void EditorTextBox_KeyDown(object? sender, KeyEventArgs e)
 	{
-		if (e.Key == Key.F5 || (e.Key == Key.Return && e.KeyModifiers.HasFlag(KeyModifiers.Control)))
+		if (IsRunShortcut(e))
 		{
 			if (ViewModel.SelectedDocumentIsQuery)
 			{
@@ -2018,6 +2082,13 @@ public partial class MainWindow : Window
 				HideCompletionPopup();
 			}
 		}
+	}
+
+	private static bool IsRunShortcut(KeyEventArgs e)
+	{
+		return e.Key == Key.F5 ||
+		       (e.Key == Key.Return && e.KeyModifiers.HasFlag(KeyModifiers.Control)) ||
+		       (e.Key == Key.R && e.KeyModifiers == (KeyModifiers.Control | KeyModifiers.Shift));
 	}
 
 	private void EditorTextBox_TextInput(object? sender, TextInputEventArgs e)
@@ -2919,7 +2990,7 @@ public partial class MainWindow : Window
 
 	private async Task ExecuteEditorTextAsync(bool includePlan, int? previewLimit = null, string? sqlOverride = null, int? sqlBaseOffsetOverride = null)
 	{
-		if (!ViewModel.SelectedDocumentIsQuery)
+		if (_isShuttingDown || !ViewModel.SelectedDocumentIsQuery)
 		{
 			return;
 		}
@@ -3197,6 +3268,11 @@ public partial class MainWindow : Window
 
 	private void ScheduleDeferredCompletionRefresh(string? textSnapshot = null, int? caretOffset = null)
 	{
+		if (_isShuttingDown)
+		{
+			return;
+		}
+
 		// Completion may inspect SQL context and metadata; a short pause keeps fast typing smooth.
 		_pendingCompletionRefreshText = textSnapshot;
 		_pendingCompletionRefreshCaretOffset = caretOffset ?? EditorTextBox.CaretOffset;
@@ -3233,6 +3309,11 @@ public partial class MainWindow : Window
 
 	private void ScheduleCompletionRefresh(string? textSnapshot = null, int? caretOffsetSnapshot = null)
 	{
+		if (_isShuttingDown)
+		{
+			return;
+		}
+
 		string text = textSnapshot ?? EditorTextBox.Text ?? string.Empty;
 		int caretOffset = caretOffsetSnapshot ?? EditorTextBox.CaretOffset;
 		CompletionController.CompletionRefreshRequest completionRefreshRequest = _completionController.BeginRefresh(text, caretOffset, ViewModel.SelectedDocumentConnectionProfile, ViewModel.SelectedDocumentSchema);
@@ -3291,8 +3372,18 @@ public partial class MainWindow : Window
 				request.Qualifier,
 				request.Token);
 			stopwatch.Stop();
+			if (_isShuttingDown)
+			{
+				return;
+			}
+
 			await Dispatcher.UIThread.InvokeAsync(delegate
 			{
+				if (_isShuttingDown)
+				{
+					return;
+				}
+
 				if (items.Count == 0 && ShouldKeepLocalizedCompletionVisible())
 				{
 					AppendUiLog($"CompletionRefresh: prefix={ToCompletionLogValue(request.Prefix)}; context={request.Context}; schema={request.Schema}; items=0; keptVisible=True; elapsedMs={stopwatch.ElapsedMilliseconds}");
@@ -3846,7 +3937,7 @@ public partial class MainWindow : Window
 
 	private async Task RenderSelectedResultGridAsync()
 	{
-		if (ResultHeaderHost == null || ResultRowsHost == null || ResultFixedHeaderHost == null || ResultFixedRowsHost == null)
+		if (_isShuttingDown || ResultHeaderHost == null || ResultRowsHost == null || ResultFixedHeaderHost == null || ResultFixedRowsHost == null)
 		{
 			return;
 		}

@@ -25,7 +25,7 @@
     "Replace":  "Replace",
     "ConnectionManager":  "Connections",
     "Language":  "Language",
-    "ShortcutHint":  "F5 / Ctrl+Enter run, Ctrl+S save, Ctrl+O open, Ctrl+F find.",
+    "ShortcutHint":  "F5 / Ctrl+Enter / Ctrl+Shift+R run, Ctrl+S save, Ctrl+O open, Ctrl+F find.",
     "Explorer":  "Explorer",
     "ObjectExplorer":  "Object Explorer",
     "SearchWatermark":  "Find text",
