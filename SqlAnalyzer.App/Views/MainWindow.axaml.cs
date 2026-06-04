@@ -43,6 +43,8 @@ public partial class MainWindow : Window
 
 	private static readonly bool DiagnosticLoggingEnabled = string.Equals(Environment.GetEnvironmentVariable("SQLANALYZER_DIAGNOSTIC_LOGS"), "1", StringComparison.OrdinalIgnoreCase);
 
+	private static readonly Cursor ResultColumnResizeCursor = new(StandardCursorType.SizeWestEast);
+
 	private readonly RegistryOptions _registryOptions = new RegistryOptions(ThemeName.LightPlus);
 
 	private object? _textMateInstallation;
@@ -2845,6 +2847,11 @@ public partial class MainWindow : Window
 		if (selectedDocumentSelectedResultSet != null)
 		{
 			PointerPointProperties properties = e.GetCurrentPoint(this).Properties;
+			if (TryBeginResultColumnResize(e, relativeTo, position, control, selectedDocumentSelectedResultSet))
+			{
+				return;
+			}
+
 			if (properties.IsLeftButtonPressed && _resultWorkspaceController.TryGetHeaderColumnAtPoint(relativeTo, position, out var columnIndex) && columnIndex >= 0)
 			{
 				EndInlineCellEdit();
@@ -2890,17 +2897,42 @@ public partial class MainWindow : Window
 
 	private void Window_PointerMoved(object? sender, PointerEventArgs e)
 	{
-		if (e.KeyModifiers.HasFlag(KeyModifiers.Alt) || (!_resultWorkspaceController.IsDraggingSelection && !_resultWorkspaceController.IsDraggingCellSelection && !_resultWorkspaceController.IsDraggingHeaderSelection))
+		if (e.KeyModifiers.HasFlag(KeyModifiers.Alt))
 		{
+			ResetResultColumnResizeCursor();
 			return;
 		}
+
 		ResultSetViewItem? selectedDocumentSelectedResultSet = ViewModel.SelectedDocumentSelectedResultSet;
-		if (selectedDocumentSelectedResultSet == null || !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-		{
-			return;
-		}
+		PointerPointProperties properties = e.GetCurrentPoint(this).Properties;
 		Visual relativeTo = ResultInteractionHost;
 		Point position = e.GetPosition(relativeTo);
+		if (_resultWorkspaceController.IsResizingColumn)
+		{
+			if (selectedDocumentSelectedResultSet == null || !properties.IsLeftButtonPressed)
+			{
+				_resultWorkspaceController.EndColumnResize();
+				ResetResultColumnResizeCursor();
+				return;
+			}
+
+			_resultWorkspaceController.UpdateColumnResize(selectedDocumentSelectedResultSet, position.X, properties.IsLeftButtonPressed);
+			ResultInteractionHost.Cursor = ResultColumnResizeCursor;
+			e.Handled = true;
+			return;
+		}
+
+		if (!_resultWorkspaceController.IsDraggingSelection && !_resultWorkspaceController.IsDraggingCellSelection && !_resultWorkspaceController.IsDraggingHeaderSelection)
+		{
+			UpdateResultColumnResizeCursor(e);
+			return;
+		}
+
+		if (selectedDocumentSelectedResultSet == null || !properties.IsLeftButtonPressed)
+		{
+			return;
+		}
+
 		if (_resultWorkspaceController.IsDraggingHeaderSelection)
 		{
 			if (_resultWorkspaceController.TryGetHeaderColumnAtPoint(relativeTo, position, out var columnIndex, ignoreVerticalBounds: true) && columnIndex >= 0)
@@ -2926,10 +2958,66 @@ public partial class MainWindow : Window
 
 	private void Window_PointerReleased(object? sender, PointerReleasedEventArgs e)
 	{
+		if (_resultWorkspaceController.IsResizingColumn)
+		{
+			e.Pointer.Capture(null);
+			_resultWorkspaceController.EndColumnResize();
+			ResetResultColumnResizeCursor();
+			e.Handled = true;
+			return;
+		}
+
 		if (!e.KeyModifiers.HasFlag(KeyModifiers.Alt) && (_resultWorkspaceController.IsDraggingSelection || _resultWorkspaceController.IsDraggingCellSelection || _resultWorkspaceController.IsDraggingHeaderSelection))
 		{
 			e.Pointer.Capture(null);
 			_resultWorkspaceController.EndSelection();
+		}
+	}
+
+	private bool TryBeginResultColumnResize(
+		PointerPressedEventArgs e,
+		Visual relativeTo,
+		Point position,
+		IInputElement captureTarget,
+		ResultSetViewItem resultSet)
+	{
+		PointerPointProperties properties = e.GetCurrentPoint(this).Properties;
+		if (!properties.IsLeftButtonPressed ||
+		    !_resultWorkspaceController.TryGetHeaderResizeColumnAtPoint(relativeTo, position, out int columnIndex))
+		{
+			return false;
+		}
+
+		EndInlineCellEdit();
+		e.Pointer.Capture(captureTarget);
+		_resultWorkspaceController.BeginColumnResize(resultSet, relativeTo, position, columnIndex);
+		ResultInteractionHost.Cursor = ResultColumnResizeCursor;
+		ViewModel.ClearSelectedDocumentValueDetail();
+		e.Handled = true;
+		return true;
+	}
+
+	private void UpdateResultColumnResizeCursor(PointerEventArgs e)
+	{
+		ResultSetViewItem? resultSet = ViewModel.SelectedDocumentSelectedResultSet;
+		if (resultSet == null)
+		{
+			ResetResultColumnResizeCursor();
+			return;
+		}
+
+		Visual relativeTo = ResultInteractionHost;
+		Point position = e.GetPosition(relativeTo);
+		ResultInteractionHost.Cursor = _resultWorkspaceController.TryGetHeaderResizeColumnAtPoint(relativeTo, position, out _)
+			? ResultColumnResizeCursor
+			: null;
+	}
+
+	private void ResetResultColumnResizeCursor()
+	{
+		if (!_resultWorkspaceController.IsResizingColumn && ResultInteractionHost != null)
+		{
+			ResultInteractionHost.Cursor = null;
 		}
 	}
 
@@ -4190,10 +4278,17 @@ public partial class MainWindow : Window
 			if (selectedDocumentSelectedResultSet != null)
 			{
 				EndInlineCellEdit();
+				IInputElement captureTarget = (IInputElement?)ResultInteractionHost ?? this;
+				Visual relativeTo = ResultInteractionHost!;
+				Point position = e.GetPosition(relativeTo);
+				if (TryBeginResultColumnResize(e, relativeTo, position, captureTarget, selectedDocumentSelectedResultSet))
+				{
+					return;
+				}
+
 				PointerPointProperties properties = e.GetCurrentPoint(this).Properties;
 				if (properties.IsLeftButtonPressed)
 				{
-					IInputElement captureTarget = (IInputElement?)ResultInteractionHost ?? this;
 					e.Pointer.Capture(captureTarget);
 					_resultWorkspaceController.BeginHeaderSelection(selectedDocumentSelectedResultSet, columnIndex);
 				}

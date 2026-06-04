@@ -26,6 +26,8 @@ public sealed class ResultColumnViewItem
 
     public bool HasExplicitAlias { get; set; }
 
+    public double? ManualWidth { get; set; }
+
     public string EffectiveSourceColumn =>
         string.IsNullOrWhiteSpace(SourceColumn) ? RawName : SourceColumn!;
 }

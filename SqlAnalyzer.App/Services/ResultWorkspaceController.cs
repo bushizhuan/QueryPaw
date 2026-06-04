@@ -14,20 +14,31 @@ namespace SqlAnalyzer.App.Services;
 
 public sealed class ResultWorkspaceController
 {
+    private const double ColumnResizeHandleWidth = 7.0;
+    private const double ColumnResizeHandleOverflow = 2.0;
+    private const double MinDataColumnWidth = 48.0;
+    private const double MaxDataColumnWidth = 720.0;
+
     private readonly Dictionary<int, Border> _headerBorders = [];
     private readonly HashSet<int> _pinnedHeaderColumns = [];
     private readonly Dictionary<ResultRowViewItem, Border> _rowBorders = [];
     private readonly Dictionary<ResultRowViewItem, Border> _actionBorders = [];
     private readonly Dictionary<(ResultRowViewItem Row, int ColumnIndex), Border> _cellBorders = [];
+    private readonly Dictionary<int, int> _columnVisualIndexes = [];
+    private readonly List<Grid> _scrollableGrids = [];
     private readonly HashSet<ResultRowViewItem> _selectedRows = [];
     private readonly HashSet<(ResultRowViewItem Row, int ColumnIndex)> _selectedCells = [];
     private ResultRowViewItem? _selectedRow;
     private ResultRowViewItem? _selectionAnchorRow;
     private ResultCellContext? _cellSelectionAnchor;
     private ResultCellContext? _selectedCell;
+    private int _resizingColumnIndex = -1;
+    private double _resizeStartX;
+    private double _resizeStartWidth;
     private bool _isDraggingSelection;
     private bool _isDraggingCellSelection;
     private bool _isDraggingHeaderSelection;
+    private bool _isResizingColumn;
 
     public ResultRowViewItem? SelectedRow => _selectedRow;
 
@@ -40,6 +51,8 @@ public sealed class ResultWorkspaceController
     public bool IsDraggingCellSelection => _isDraggingCellSelection;
 
     public bool IsDraggingHeaderSelection => _isDraggingHeaderSelection;
+
+    public bool IsResizingColumn => _isResizingColumn;
 
     public ResultCellContext? SelectedCell => _selectedCell;
 
@@ -93,10 +106,12 @@ public sealed class ResultWorkspaceController
         {
             ColumnDefinitions = new ColumnDefinitions(string.Join(",", columnWidths.Select(width => $"{width}")))
         };
+        _scrollableGrids.Add(headerGrid);
 
         for (int visualIndex = 0; visualIndex < orderedColumns.Count; visualIndex++)
         {
             int columnIndex = orderedColumns[visualIndex];
+            _columnVisualIndexes[columnIndex] = visualIndex;
             ResultColumnViewItem column = resultSet.Columns[columnIndex];
             string subtitle = headerSubtitleFormatter(column);
             Border headerCell = new()
@@ -188,6 +203,7 @@ public sealed class ResultWorkspaceController
         {
             ColumnDefinitions = new ColumnDefinitions(string.Join(",", columnWidths.Select(width => $"{width}")))
         };
+        _scrollableGrids.Add(rowGrid);
 
         for (int visualIndex = 0; visualIndex < orderedColumns.Count; visualIndex++)
         {
@@ -407,15 +423,91 @@ public sealed class ResultWorkspaceController
         _rowBorders.Clear();
         _actionBorders.Clear();
         _cellBorders.Clear();
+        _columnVisualIndexes.Clear();
+        _scrollableGrids.Clear();
         _selectedRows.Clear();
         _selectedCells.Clear();
         _selectedRow = null;
         _selectionAnchorRow = null;
         _cellSelectionAnchor = null;
         _selectedCell = null;
+        _resizingColumnIndex = -1;
+        _resizeStartX = 0;
+        _resizeStartWidth = 0;
         _isDraggingSelection = false;
         _isDraggingCellSelection = false;
         _isDraggingHeaderSelection = false;
+        _isResizingColumn = false;
+    }
+    public bool TryGetHeaderResizeColumnAtPoint(Visual relativeTo, Point point, out int columnIndex)
+    {
+        double bestDistance = double.MaxValue;
+        int bestColumnIndex = -1;
+        foreach ((int key, Border border) in _headerBorders)
+        {
+            if (!TryBuildHitRect(border, relativeTo, out Rect rect) ||
+                point.Y < rect.Top ||
+                point.Y > rect.Bottom ||
+                point.X < rect.Right - ColumnResizeHandleWidth ||
+                point.X > rect.Right + ColumnResizeHandleOverflow)
+            {
+                continue;
+            }
+
+            double distance = Math.Abs(point.X - rect.Right);
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestColumnIndex = key;
+            }
+        }
+
+        columnIndex = bestColumnIndex;
+        return bestColumnIndex >= 0;
+    }
+    public void BeginColumnResize(ResultSetViewItem resultSet, Visual relativeTo, Point point, int columnIndex)
+    {
+        if (columnIndex < 0 ||
+            columnIndex >= resultSet.Columns.Count ||
+            !_headerBorders.TryGetValue(columnIndex, out Border? border) ||
+            !TryBuildHitRect(border, relativeTo, out Rect rect))
+        {
+            return;
+        }
+
+        _isResizingColumn = true;
+        _isDraggingSelection = false;
+        _isDraggingCellSelection = false;
+        _isDraggingHeaderSelection = false;
+        _resizingColumnIndex = columnIndex;
+        _resizeStartX = point.X;
+        _resizeStartWidth = Math.Clamp(rect.Width, MinDataColumnWidth, MaxDataColumnWidth);
+        resultSet.Columns[columnIndex].ManualWidth = _resizeStartWidth;
+    }
+    public bool UpdateColumnResize(ResultSetViewItem resultSet, double pointerX, bool isLeftButtonPressed)
+    {
+        if (!_isResizingColumn || !isLeftButtonPressed)
+        {
+            return false;
+        }
+
+        if (_resizingColumnIndex < 0 || _resizingColumnIndex >= resultSet.Columns.Count)
+        {
+            EndColumnResize();
+            return false;
+        }
+
+        double width = Math.Clamp(_resizeStartWidth + pointerX - _resizeStartX, MinDataColumnWidth, MaxDataColumnWidth);
+        resultSet.Columns[_resizingColumnIndex].ManualWidth = width;
+        ApplyColumnWidth(_resizingColumnIndex, width);
+        return true;
+    }
+    public void EndColumnResize()
+    {
+        _isResizingColumn = false;
+        _resizingColumnIndex = -1;
+        _resizeStartX = 0;
+        _resizeStartWidth = 0;
     }
     public bool TryGetHeaderColumnAtPoint(Visual relativeTo, Point point, out int columnIndex, bool ignoreVerticalBounds = false)
     {
@@ -550,10 +642,28 @@ public sealed class ResultWorkspaceController
 
             widths[visualIndex] = columnIndex < 0
                 ? 14
-                : Math.Clamp((maxLength * 7) + 16, 76, 210);
+                : resultSet.Columns[columnIndex].ManualWidth is { } manualWidth
+                    ? Math.Clamp(manualWidth, MinDataColumnWidth, MaxDataColumnWidth)
+                    : Math.Clamp((maxLength * 7) + 16, 76, 210);
         }
 
         return widths;
+    }
+    private void ApplyColumnWidth(int columnIndex, double width)
+    {
+        if (!_columnVisualIndexes.TryGetValue(columnIndex, out int visualIndex))
+        {
+            return;
+        }
+
+        GridLength gridLength = new(width);
+        foreach (Grid grid in _scrollableGrids)
+        {
+            if (visualIndex >= 0 && visualIndex < grid.ColumnDefinitions.Count)
+            {
+                grid.ColumnDefinitions[visualIndex].Width = gridLength;
+            }
+        }
     }
     private static int GetHeaderMeasurementLength(ResultColumnViewItem column, Func<ResultColumnViewItem, string> headerFormatter)
     {
