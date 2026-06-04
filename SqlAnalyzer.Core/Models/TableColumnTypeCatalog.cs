@@ -98,6 +98,18 @@ public static class TableColumnTypeCatalog
         Misc("set", "集合")
     ];
 
+    private static readonly IReadOnlyList<TableColumnTypeOption> SqliteTypes =
+    [
+        Numeric("INTEGER", "整型"),
+        Numeric("REAL", "浮点数"),
+        Decimal("NUMERIC", "数值", 18, 2),
+        Character("TEXT", "文本"),
+        Binary("BLOB", "二进制"),
+        DateTime("DATE", "日期"),
+        DateTime("DATETIME", "日期时间"),
+        Numeric("BOOLEAN", "布尔")
+    ];
+
     private static readonly IReadOnlyList<TableColumnTypeOption> PostgreSqlTypes =
     [
         Numeric("smallint", "16 位整型"),
@@ -177,6 +189,8 @@ public static class TableColumnTypeCatalog
             "oracle" => OracleTypes,
             "sqlserver" => SqlServerTypes,
             "mysql" => MySqlTypes,
+            "mariadb" => MySqlTypes,
+            "sqlite" => SqliteTypes,
             "postgresql" => PostgreSqlTypes,
             "kingbasees" => PostgreSqlTypes,
             "dameng" => DamengTypes,

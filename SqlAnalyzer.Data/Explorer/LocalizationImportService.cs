@@ -179,7 +179,7 @@ public sealed class LocalizationImportService : ILocalizationImportService
 select owner as SCHEMA_NAME, table_name as OBJECT_NAME, table_type as OBJECT_TYPE, comments as COMMENTS
 from all_tab_comments
 where owner in ({inListUpper}) and comments is not null",
-            "MySql" => $@"
+            "MySql" or "MariaDB" => $@"
 select table_schema as SCHEMA_NAME, table_name as OBJECT_NAME, table_type as OBJECT_TYPE, table_comment as COMMENTS
 from information_schema.tables
 where table_schema in ({inList}) and table_comment <> ''",
@@ -220,7 +220,7 @@ where s.name in ({inList}) and o.type in ('U','V')",
 select owner as SCHEMA_NAME, table_name as OBJECT_NAME, column_name as COLUMN_NAME, comments as COMMENTS
 from all_col_comments
 where owner in ({inListUpper}) and comments is not null",
-            "MySql" => $@"
+            "MySql" or "MariaDB" => $@"
 select table_schema as SCHEMA_NAME, table_name as OBJECT_NAME, column_name as COLUMN_NAME, column_comment as COMMENTS
 from information_schema.columns
 where table_schema in ({inList}) and column_comment <> ''",

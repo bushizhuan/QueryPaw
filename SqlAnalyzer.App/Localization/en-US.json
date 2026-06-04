@@ -89,6 +89,7 @@
     "Notes":  "Notes",
     "Server":  "Server",
     "Database":  "Database / SID / Service",
+    "DatabaseFile":  "Database File",
     "Schema":  "Schema",
     "DatabaseConnection":  "Database Connection",
     "CapabilityLevel":  "Capability Level",

@@ -89,6 +89,31 @@ public sealed class DatabaseProviderCatalog : IDatabaseProviderCatalog
         },
         new()
         {
+            Name = "MariaDB",
+            DisplayName = "MariaDB",
+            Kind = "Relational",
+            DriverFamily = "MySQL-family",
+            SupportLevel = "Experimental",
+            RecommendedDriver = "MySql.Data",
+            InvariantName = "MySql.Data.MySqlClient",
+            FactoryTypeName = "MySql.Data.MySqlClient.MySqlClientFactory, MySql.Data",
+            DefaultManagedDriver = "MySql.Data",
+            ConnectionTemplate = "Server={server};Database={database};Uid={user};Pwd={password};Allow User Variables=True",
+            TestSql = "select 1",
+            ExplainPrefix = "explain",
+            Capabilities = new ProviderCapabilities
+            {
+                SupportsExplain = true,
+                SupportsExportInsert = true,
+                SupportsDataEdit = true,
+                SupportsDirectTableAlter = false,
+                SupportsSequences = false,
+                SupportsProcedures = true,
+                SupportsTriggers = true
+            }
+        },
+        new()
+        {
             Name = "PostgreSql",
             DisplayName = "PostgreSQL",
             Kind = "Relational",
@@ -174,6 +199,31 @@ public sealed class DatabaseProviderCatalog : IDatabaseProviderCatalog
                 SupportsNativeDependency = true,
                 SupportsSequences = true,
                 SupportsProcedures = true,
+                SupportsTriggers = true
+            }
+        },
+        new()
+        {
+            Name = "SQLite",
+            DisplayName = "SQLite",
+            Kind = "Relational",
+            DriverFamily = "Embedded-file",
+            SupportLevel = "Experimental",
+            RecommendedDriver = "Microsoft.Data.Sqlite",
+            InvariantName = "Microsoft.Data.Sqlite",
+            FactoryTypeName = "Microsoft.Data.Sqlite.SqliteFactory, Microsoft.Data.Sqlite",
+            DefaultManagedDriver = "Microsoft.Data.Sqlite",
+            ConnectionTemplate = "Data Source={database};Pooling=False",
+            TestSql = "select 1",
+            ExplainPrefix = "explain query plan",
+            Capabilities = new ProviderCapabilities
+            {
+                SupportsExplain = true,
+                SupportsExportInsert = true,
+                SupportsDataEdit = false,
+                SupportsDirectTableAlter = false,
+                SupportsSequences = false,
+                SupportsProcedures = false,
                 SupportsTriggers = true
             }
         },

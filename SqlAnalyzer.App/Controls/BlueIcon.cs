@@ -97,6 +97,18 @@ public sealed class BlueIcon : Control
                     break;
                 }
                 goto case "connection";
+            case "mariadblogo":
+                if (TryDrawBitmapLogo(context, "mariadb-logo-vertical-blue.png", R(2.2, 2.0, 19.6, 20.0)))
+                {
+                    break;
+                }
+                goto case "connection";
+            case "sqlitelogo":
+                if (TryDrawBitmapLogo(context, "sqlite-icon.png", R(3.4, 2.0, 17.2, 20.0)))
+                {
+                    break;
+                }
+                goto case "connection";
             case "sqlserverlogo":
                 if (TryDrawSvgLogo(context, "microsoftsqlserver.svg", R(2.2, 2.2, 19.6, 19.6), AccentBrush))
                 {

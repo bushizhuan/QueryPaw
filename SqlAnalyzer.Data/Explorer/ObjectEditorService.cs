@@ -164,7 +164,7 @@ public sealed class ObjectEditorService : IObjectEditorService
             "Oracle" or "Dameng" => await LoadOracleFamilyDefinitionAsync(connection, schemaName, objectName, objectType, cancellationToken),
             "SqlServer" => await LoadSqlServerDefinitionAsync(connection, schemaName, objectName, objectType, cancellationToken),
             "PostgreSql" or "KingbaseES" => await LoadPostgreSqlDefinitionAsync(connection, schemaName, objectName, objectType, cancellationToken),
-            "MySql" => await LoadMySqlDefinitionAsync(connection, schemaName, objectName, objectType, cancellationToken),
+            "MySql" or "MariaDB" => await LoadMySqlDefinitionAsync(connection, schemaName, objectName, objectType, cancellationToken),
             _ => throw new NotSupportedException($"Provider '{providerName}' is not supported by object editor.")
         };
     }
@@ -351,7 +351,7 @@ public sealed class ObjectEditorService : IObjectEditorService
                     where n.nspname = '{escapedSchema}' and c.relname = '{escapedName}'
                     """,
                     cancellationToken)) ?? string.Empty,
-            "MySql" when string.Equals(objectType, "view", StringComparison.OrdinalIgnoreCase) =>
+            "MySql" or "MariaDB" when string.Equals(objectType, "view", StringComparison.OrdinalIgnoreCase) =>
                 (await ExecuteScalarAsStringAsync(
                     connection,
                     $"select table_comment from information_schema.tables where table_schema = '{escapedSchema}' and table_name = '{escapedName}'",
@@ -584,7 +584,7 @@ public sealed class ObjectEditorService : IObjectEditorService
         {
             "Oracle" or "Dameng" => EnsureOracleCreateOrReplace(normalizedObjectType, sql),
             "SqlServer" => EnsureSqlServerCreateOrAlter(sql),
-            "MySql" when string.Equals(normalizedObjectType, "view", StringComparison.OrdinalIgnoreCase) => EnsureMySqlViewCreateOrReplace(sql),
+            "MySql" or "MariaDB" when string.Equals(normalizedObjectType, "view", StringComparison.OrdinalIgnoreCase) => EnsureMySqlViewCreateOrReplace(sql),
             _ => sql
         };
     }
@@ -671,8 +671,8 @@ public sealed class ObjectEditorService : IObjectEditorService
             "SqlServer" when normalizedObjectType is "view" or "procedure" or "function" => ObjectEditorCapability.Editable,
             "PostgreSql" or "KingbaseES" when normalizedObjectType is "view" or "function" => ObjectEditorCapability.Editable,
             "PostgreSql" or "KingbaseES" when normalizedObjectType == "procedure" => ObjectEditorCapability.PreviewOnly,
-            "MySql" when normalizedObjectType == "view" => ObjectEditorCapability.Editable,
-            "MySql" when normalizedObjectType is "procedure" or "function" => ObjectEditorCapability.PreviewOnly,
+            "MySql" or "MariaDB" when normalizedObjectType == "view" => ObjectEditorCapability.Editable,
+            "MySql" or "MariaDB" when normalizedObjectType is "procedure" or "function" => ObjectEditorCapability.PreviewOnly,
             _ => ObjectEditorCapability.Unsupported
         };
     }
@@ -709,7 +709,7 @@ public sealed class ObjectEditorService : IObjectEditorService
         return providerName switch
         {
             "SqlServer" => $"[{schemaName}].[{objectName}]",
-            "MySql" => $"`{schemaName}`.`{objectName}`",
+            "MySql" or "MariaDB" => $"`{schemaName}`.`{objectName}`",
             _ => $"\"{schemaName}\".\"{objectName}\""
         };
     }

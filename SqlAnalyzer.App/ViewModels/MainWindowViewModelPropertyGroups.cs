@@ -130,9 +130,11 @@ internal static class MainWindowViewModelPropertyGroups
     {
         "IsOracleProfileSelected",
         "IsMongoProfileSelected",
+        "IsSqliteProfileSelected",
         "IsServerDatabaseProfileSelected",
         "IsGenericConnectionFormVisible",
         "IsGenericPortVisible",
+        "IsConnectionAuthVisible",
         "IsOracleHostMode",
         "IsOracleTnsMode",
         "SelectedProviderDisplayName",

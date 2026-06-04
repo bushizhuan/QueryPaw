@@ -423,9 +423,10 @@ public sealed class DatabaseExplorerService : IDatabaseExplorerService
             "Oracle" => "select USERNAME from ALL_USERS order by USERNAME",
             "SqlServer" => "select name from sys.schemas order by name",
             "PostgreSql" => "select schema_name from information_schema.schemata order by schema_name",
-            "MySql" => "select schema_name from information_schema.schemata order by schema_name",
+            "MySql" or "MariaDB" => "select schema_name from information_schema.schemata order by schema_name",
             "KingbaseES" => "select schema_name from information_schema.schemata order by schema_name",
             "Dameng" => "select USERNAME from ALL_USERS order by USERNAME",
+            "SQLite" => "select name from pragma_database_list order by case name when 'main' then 0 when 'temp' then 1 else 2 end, name",
             _ => string.Empty
         };
 
@@ -586,11 +587,12 @@ public sealed class DatabaseExplorerService : IDatabaseExplorerService
         return provider.Name switch
         {
             "SqlServer" => $"select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA = '{escaped}' and TABLE_TYPE = 'BASE TABLE' order by TABLE_NAME",
-            "MySql" => $"select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA = '{escaped}' and TABLE_TYPE = 'BASE TABLE' order by TABLE_NAME",
+            "MySql" or "MariaDB" => $"select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA = '{escaped}' and TABLE_TYPE = 'BASE TABLE' order by TABLE_NAME",
             "Oracle" => $"select TABLE_NAME from ALL_TABLES where OWNER = '{escaped.ToUpperInvariant()}' order by TABLE_NAME",
             "PostgreSql" => $"select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA = '{escaped}' and TABLE_TYPE = 'BASE TABLE' order by TABLE_NAME",
             "KingbaseES" => $"select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA = '{escaped}' and TABLE_TYPE = 'BASE TABLE' order by TABLE_NAME",
             "Dameng" => $"select TABLE_NAME from ALL_TABLES where OWNER = '{escaped.ToUpperInvariant()}' order by TABLE_NAME",
+            "SQLite" => $"select name from pragma_table_list where schema = '{escaped}' and type in ('table', 'virtual') and name not like 'sqlite_%' order by name",
             _ => string.Empty
         };
     }
@@ -600,11 +602,12 @@ public sealed class DatabaseExplorerService : IDatabaseExplorerService
         return provider.Name switch
         {
             "SqlServer" => $"select TABLE_NAME from INFORMATION_SCHEMA.VIEWS where TABLE_SCHEMA = '{escaped}' order by TABLE_NAME",
-            "MySql" => $"select TABLE_NAME from INFORMATION_SCHEMA.VIEWS where TABLE_SCHEMA = '{escaped}' order by TABLE_NAME",
+            "MySql" or "MariaDB" => $"select TABLE_NAME from INFORMATION_SCHEMA.VIEWS where TABLE_SCHEMA = '{escaped}' order by TABLE_NAME",
             "Oracle" => $"select VIEW_NAME from ALL_VIEWS where OWNER = '{escaped.ToUpperInvariant()}' order by VIEW_NAME",
             "PostgreSql" => $"select TABLE_NAME from INFORMATION_SCHEMA.VIEWS where TABLE_SCHEMA = '{escaped}' order by TABLE_NAME",
             "KingbaseES" => $"select TABLE_NAME from INFORMATION_SCHEMA.VIEWS where TABLE_SCHEMA = '{escaped}' order by TABLE_NAME",
             "Dameng" => $"select VIEW_NAME from ALL_VIEWS where OWNER = '{escaped.ToUpperInvariant()}' order by VIEW_NAME",
+            "SQLite" => $"select name from pragma_table_list where schema = '{escaped}' and type = 'view' order by name",
             _ => string.Empty
         };
     }
@@ -626,7 +629,7 @@ public sealed class DatabaseExplorerService : IDatabaseExplorerService
         return provider.Name switch
         {
             "SqlServer" => $"select ROUTINE_NAME from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = '{escaped}' and ROUTINE_TYPE = 'FUNCTION' order by ROUTINE_NAME",
-            "MySql" => $"select ROUTINE_NAME from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = '{escaped}' and ROUTINE_TYPE = 'FUNCTION' order by ROUTINE_NAME",
+            "MySql" or "MariaDB" => $"select ROUTINE_NAME from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = '{escaped}' and ROUTINE_TYPE = 'FUNCTION' order by ROUTINE_NAME",
             "Oracle" => $"select OBJECT_NAME from ALL_OBJECTS where OWNER = '{escaped.ToUpperInvariant()}' and OBJECT_TYPE = 'FUNCTION' order by OBJECT_NAME",
             "PostgreSql" => $"select ROUTINE_NAME from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = '{escaped}' and ROUTINE_TYPE = 'FUNCTION' order by ROUTINE_NAME",
             "KingbaseES" => $"select ROUTINE_NAME from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = '{escaped}' and ROUTINE_TYPE = 'FUNCTION' order by ROUTINE_NAME",
@@ -640,7 +643,7 @@ public sealed class DatabaseExplorerService : IDatabaseExplorerService
         return provider.Name switch
         {
             "SqlServer" => $"select ROUTINE_NAME from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = '{escaped}' and ROUTINE_TYPE = 'PROCEDURE' order by ROUTINE_NAME",
-            "MySql" => $"select ROUTINE_NAME from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = '{escaped}' and ROUTINE_TYPE = 'PROCEDURE' order by ROUTINE_NAME",
+            "MySql" or "MariaDB" => $"select ROUTINE_NAME from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = '{escaped}' and ROUTINE_TYPE = 'PROCEDURE' order by ROUTINE_NAME",
             "Oracle" => $"select OBJECT_NAME from ALL_OBJECTS where OWNER = '{escaped.ToUpperInvariant()}' and OBJECT_TYPE = 'PROCEDURE' order by OBJECT_NAME",
             "PostgreSql" => $"select ROUTINE_NAME from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = '{escaped}' and ROUTINE_TYPE = 'PROCEDURE' order by ROUTINE_NAME",
             "KingbaseES" => $"select ROUTINE_NAME from INFORMATION_SCHEMA.ROUTINES where ROUTINE_SCHEMA = '{escaped}' and ROUTINE_TYPE = 'PROCEDURE' order by ROUTINE_NAME",
@@ -666,11 +669,12 @@ public sealed class DatabaseExplorerService : IDatabaseExplorerService
         return provider.Name switch
         {
             "SqlServer" => $"select t.name from sys.triggers t inner join sys.objects o on t.parent_id = o.object_id inner join sys.schemas s on o.schema_id = s.schema_id where s.name = '{escaped}' order by t.name",
-            "MySql" => $"select TRIGGER_NAME from INFORMATION_SCHEMA.TRIGGERS where TRIGGER_SCHEMA = '{escaped}' order by TRIGGER_NAME",
+            "MySql" or "MariaDB" => $"select TRIGGER_NAME from INFORMATION_SCHEMA.TRIGGERS where TRIGGER_SCHEMA = '{escaped}' order by TRIGGER_NAME",
             "Oracle" => $"select TRIGGER_NAME from ALL_TRIGGERS where OWNER = '{escaped.ToUpperInvariant()}' order by TRIGGER_NAME",
             "PostgreSql" => $"select trigger_name from information_schema.triggers where trigger_schema = '{escaped}' order by trigger_name",
             "KingbaseES" => $"select trigger_name from information_schema.triggers where trigger_schema = '{escaped}' order by trigger_name",
             "Dameng" => $"select TRIGGER_NAME from ALL_TRIGGERS where OWNER = '{escaped.ToUpperInvariant()}' order by TRIGGER_NAME",
+            "SQLite" => $"select name from sqlite_master where type = 'trigger' order by name",
             _ => string.Empty
         };
     }
@@ -700,11 +704,12 @@ public sealed class DatabaseExplorerService : IDatabaseExplorerService
         return provider.Name switch
         {
             "SqlServer" => $"select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '{escapedSchema}' and TABLE_NAME = '{escapedObject}' order by ORDINAL_POSITION",
-            "MySql" => $"select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '{escapedSchema}' and TABLE_NAME = '{escapedObject}' order by ORDINAL_POSITION",
+            "MySql" or "MariaDB" => $"select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '{escapedSchema}' and TABLE_NAME = '{escapedObject}' order by ORDINAL_POSITION",
             "Oracle" => $"select COLUMN_NAME from ALL_TAB_COLUMNS where OWNER = '{escapedSchema.ToUpperInvariant()}' and TABLE_NAME = '{escapedObject.ToUpperInvariant()}' order by COLUMN_ID",
             "PostgreSql" => $"select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '{escapedSchema}' and TABLE_NAME = '{escapedObject}' order by ORDINAL_POSITION",
             "KingbaseES" => $"select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '{escapedSchema}' and TABLE_NAME = '{escapedObject}' order by ORDINAL_POSITION",
             "Dameng" => $"select COLUMN_NAME from ALL_TAB_COLUMNS where OWNER = '{escapedSchema.ToUpperInvariant()}' and TABLE_NAME = '{escapedObject.ToUpperInvariant()}' order by COLUMN_ID",
+            "SQLite" => $"select name from pragma_table_info('{escapedObject}') order by cid",
             _ => string.Empty
         };
     }
@@ -725,7 +730,7 @@ public sealed class DatabaseExplorerService : IDatabaseExplorerService
         {
             "Oracle" => $@"select COLUMN_NAME, COMMENTS from ALL_COL_COMMENTS where OWNER = '{escapedSchema.ToUpperInvariant()}' and COMMENTS is not null and COLUMN_NAME in ({BuildSqlInList(normalizedColumns.Select(item => item.ToUpperInvariant()))})",
             "Dameng" => $@"select COLUMN_NAME, COMMENTS from ALL_COL_COMMENTS where OWNER = '{escapedSchema.ToUpperInvariant()}' and COMMENTS is not null and COLUMN_NAME in ({BuildSqlInList(normalizedColumns.Select(item => item.ToUpperInvariant()))})",
-            "MySql" => $@"select COLUMN_NAME, COLUMN_COMMENT as COMMENTS from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '{escapedSchema}' and COLUMN_COMMENT <> '' and COLUMN_NAME in ({BuildSqlInList(normalizedColumns)})",
+            "MySql" or "MariaDB" => $@"select COLUMN_NAME, COLUMN_COMMENT as COMMENTS from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '{escapedSchema}' and COLUMN_COMMENT <> '' and COLUMN_NAME in ({BuildSqlInList(normalizedColumns)})",
             "PostgreSql" => $@"
 select a.attname as COLUMN_NAME,
        pgd.description as COMMENTS
@@ -786,7 +791,7 @@ select c.name as COLUMN_NAME,
         {
             "Oracle" => $@"select TABLE_NAME, COLUMN_NAME, COMMENTS from ALL_COL_COMMENTS where OWNER = '{escapedSchema.ToUpperInvariant()}' and COMMENTS is not null and TABLE_NAME in ({BuildSqlInList(normalizedTables.Select(item => item.ToUpperInvariant()))}) and COLUMN_NAME in ({BuildSqlInList(normalizedColumns.Select(item => item.ToUpperInvariant()))})",
             "Dameng" => $@"select TABLE_NAME, COLUMN_NAME, COMMENTS from ALL_COL_COMMENTS where OWNER = '{escapedSchema.ToUpperInvariant()}' and COMMENTS is not null and TABLE_NAME in ({BuildSqlInList(normalizedTables.Select(item => item.ToUpperInvariant()))}) and COLUMN_NAME in ({BuildSqlInList(normalizedColumns.Select(item => item.ToUpperInvariant()))})",
-            "MySql" => $@"select TABLE_NAME, COLUMN_NAME, COLUMN_COMMENT as COMMENTS from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '{escapedSchema}' and COLUMN_COMMENT <> '' and TABLE_NAME in ({BuildSqlInList(normalizedTables)}) and COLUMN_NAME in ({BuildSqlInList(normalizedColumns)})",
+            "MySql" or "MariaDB" => $@"select TABLE_NAME, COLUMN_NAME, COLUMN_COMMENT as COMMENTS from INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '{escapedSchema}' and COLUMN_COMMENT <> '' and TABLE_NAME in ({BuildSqlInList(normalizedTables)}) and COLUMN_NAME in ({BuildSqlInList(normalizedColumns)})",
             "PostgreSql" => $@"
 select st.relname as TABLE_NAME,
        a.attname as COLUMN_NAME,

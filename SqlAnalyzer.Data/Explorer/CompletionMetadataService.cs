@@ -376,9 +376,10 @@ public sealed class CompletionMetadataService : ICompletionMetadataService
             "Oracle" => "select USERNAME from ALL_USERS order by USERNAME",
             "SqlServer" => "select name from sys.schemas order by name",
             "PostgreSql" => "select schema_name from information_schema.schemata order by schema_name",
-            "MySql" => "select schema_name from information_schema.schemata order by schema_name",
+            "MySql" or "MariaDB" => "select schema_name from information_schema.schemata order by schema_name",
             "KingbaseES" => "select schema_name from information_schema.schemata order by schema_name",
             "Dameng" => "select USERNAME from ALL_USERS order by USERNAME",
+            "SQLite" => "select name from pragma_database_list order by case name when 'main' then 0 when 'temp' then 1 else 2 end, name",
             _ => string.Empty
         };
 
@@ -699,9 +700,10 @@ public sealed class CompletionMetadataService : ICompletionMetadataService
             "Oracle" => $"select table_name from all_tables where owner = '{escaped}' order by table_name",
             "SqlServer" => $"select table_name from information_schema.tables where table_type = 'BASE TABLE' and table_schema = '{escaped}' order by table_name",
             "PostgreSql" => $"select table_name from information_schema.tables where table_type = 'BASE TABLE' and table_schema = '{escaped}' order by table_name",
-            "MySql" => $"select table_name from information_schema.tables where table_type = 'BASE TABLE' and table_schema = '{escaped}' order by table_name",
+            "MySql" or "MariaDB" => $"select table_name from information_schema.tables where table_type = 'BASE TABLE' and table_schema = '{escaped}' order by table_name",
             "KingbaseES" => $"select table_name from information_schema.tables where table_type = 'BASE TABLE' and table_schema = '{escaped}' order by table_name",
             "Dameng" => $"select table_name from all_tables where owner = '{escaped}' order by table_name",
+            "SQLite" => $"select name from pragma_table_list where schema = '{escaped}' and type in ('table', 'virtual') and name not like 'sqlite_%' order by name",
             _ => string.Empty
         };
     }
@@ -713,9 +715,10 @@ public sealed class CompletionMetadataService : ICompletionMetadataService
             "Oracle" => $"select view_name from all_views where owner = '{escaped}' order by view_name",
             "SqlServer" => $"select table_name from information_schema.views where table_schema = '{escaped}' order by table_name",
             "PostgreSql" => $"select table_name from information_schema.views where table_schema = '{escaped}' order by table_name",
-            "MySql" => $"select table_name from information_schema.views where table_schema = '{escaped}' order by table_name",
+            "MySql" or "MariaDB" => $"select table_name from information_schema.views where table_schema = '{escaped}' order by table_name",
             "KingbaseES" => $"select table_name from information_schema.views where table_schema = '{escaped}' order by table_name",
             "Dameng" => $"select view_name from all_views where owner = '{escaped}' order by view_name",
+            "SQLite" => $"select name from pragma_table_list where schema = '{escaped}' and type = 'view' order by name",
             _ => string.Empty
         };
     }
@@ -768,7 +771,7 @@ select c.relname as OBJECT_NAME,
    and c.relkind in ('r', 'v', 'm')
    and pgd.description is not null
    and pgd.description <> ''",
-            "MySql" => $@"
+            "MySql" or "MariaDB" => $@"
 select table_name as OBJECT_NAME,
        table_type as OBJECT_TYPE,
        table_comment as COMMENTS
@@ -820,7 +823,7 @@ select a.attname as COLUMN_NAME,
    and c.relkind in ('r', 'v', 'm')
    and pgd.description is not null
    and pgd.description <> ''",
-            "MySql" => $@"
+            "MySql" or "MariaDB" => $@"
 select column_name as COLUMN_NAME,
        column_comment as COMMENTS
   from information_schema.columns
@@ -849,9 +852,10 @@ select column_name as COLUMN_NAME,
             "Oracle" => $"select column_name from all_tab_columns where owner = '{escapedSchema}' and table_name = '{escapedObject}' order by column_id",
             "SqlServer" => $"select column_name from information_schema.columns where table_schema = '{escapedSchema}' and table_name = '{escapedObject}' order by ordinal_position",
             "PostgreSql" => $"select column_name from information_schema.columns where table_schema = '{escapedSchema}' and table_name = '{escapedObject}' order by ordinal_position",
-            "MySql" => $"select column_name from information_schema.columns where table_schema = '{escapedSchema}' and table_name = '{escapedObject}' order by ordinal_position",
+            "MySql" or "MariaDB" => $"select column_name from information_schema.columns where table_schema = '{escapedSchema}' and table_name = '{escapedObject}' order by ordinal_position",
             "KingbaseES" => $"select column_name from information_schema.columns where table_schema = '{escapedSchema}' and table_name = '{escapedObject}' order by ordinal_position",
             "Dameng" => $"select column_name from all_tab_columns where owner = '{escapedSchema}' and table_name = '{escapedObject}' order by column_id",
+            "SQLite" => $"select name from pragma_table_info('{escapedObject}') order by cid",
             _ => string.Empty
         };
     }
@@ -864,9 +868,10 @@ select column_name as COLUMN_NAME,
             "Oracle" => $"select table_name, column_name from all_tab_columns where owner = '{escapedSchema}' order by table_name, column_id",
             "SqlServer" => $"select table_name, column_name from information_schema.columns where table_schema = '{escapedSchema}' order by table_name, ordinal_position",
             "PostgreSql" => $"select table_name, column_name from information_schema.columns where table_schema = '{escapedSchema}' order by table_name, ordinal_position",
-            "MySql" => $"select table_name, column_name from information_schema.columns where table_schema = '{escapedSchema}' order by table_name, ordinal_position",
+            "MySql" or "MariaDB" => $"select table_name, column_name from information_schema.columns where table_schema = '{escapedSchema}' order by table_name, ordinal_position",
             "KingbaseES" => $"select table_name, column_name from information_schema.columns where table_schema = '{escapedSchema}' order by table_name, ordinal_position",
             "Dameng" => $"select table_name, column_name from all_tab_columns where owner = '{escapedSchema}' order by table_name, column_id",
+            "SQLite" => $"select t.name as table_name, p.name as column_name from pragma_table_list t join pragma_table_info(t.name) p where t.schema = '{escapedSchema}' and t.type in ('table', 'view', 'virtual') and t.name not like 'sqlite_%' order by t.name, p.cid",
             _ => string.Empty
         };
     }

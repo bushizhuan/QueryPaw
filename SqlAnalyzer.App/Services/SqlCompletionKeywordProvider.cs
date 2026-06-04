@@ -125,6 +125,16 @@ public static class SqlCompletionKeywordProvider
         new("explain", 57, "Explain execution plan")
     ];
 
+    private static readonly CompletionKeyword[] SqliteKeywords =
+    [
+        new("limit", 53, "SQLite row limiting clause"),
+        new("offset", 54, "SQLite row offset clause"),
+        new("ifnull", 55, "SQLite null replacement function", "function"),
+        new("pragma", 56, "SQLite database setting and metadata statement"),
+        new("without rowid", 57, "SQLite table option"),
+        new("explain query plan", 58, "Explain SQLite execution plan")
+    ];
+
     private static readonly IReadOnlyDictionary<string, IReadOnlyList<CompletionKeyword>> ProviderProfiles =
         BuildProviderProfiles();
 
@@ -165,7 +175,9 @@ public static class SqlCompletionKeywordProvider
             ["SqlServer"] = Merge(CommonKeywords, SqlServerKeywords),
             ["PostgreSql"] = Merge(CommonKeywords, PostgreSqlFamilyKeywords),
             ["KingbaseES"] = Merge(CommonKeywords, PostgreSqlFamilyKeywords),
-            ["MySql"] = Merge(CommonKeywords, MySqlKeywords)
+            ["MySql"] = Merge(CommonKeywords, MySqlKeywords),
+            ["MariaDB"] = Merge(CommonKeywords, MySqlKeywords),
+            ["SQLite"] = Merge(CommonKeywords, SqliteKeywords)
         };
     }
 

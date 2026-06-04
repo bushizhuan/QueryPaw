@@ -162,6 +162,18 @@ public sealed class ConnectionCenterController
             profile.Port = GetDefaultPort(provider.Name) ?? 0;
         }
 
+        if (string.Equals(provider.Name, "SQLite", StringComparison.OrdinalIgnoreCase))
+        {
+            profile.Port = 0;
+            profile.AuthenticationMode = string.Empty;
+            profile.Server = string.Empty;
+            profile.UserName = string.Empty;
+            profile.Password = string.Empty;
+            profile.EncryptedPassword = string.Empty;
+            profile.SavePassword = false;
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(profile.AuthenticationMode))
         {
             profile.AuthenticationMode = "Default";
@@ -189,6 +201,7 @@ public sealed class ConnectionCenterController
         return providerName.ToLowerInvariant() switch
         {
             "mysql" => 3306,
+            "mariadb" => 3306,
             "sqlserver" => 1433,
             "postgresql" => 5432,
             "kingbasees" => 54321,

@@ -89,6 +89,7 @@
     "Notes":  "备注",
     "Server":  "服务器",
     "Database":  "数据库 / SID / Service",
+    "DatabaseFile":  "数据库文件",
     "Schema":  "模式 / Schema",
     "DatabaseConnection":  "数据库连接",
     "CapabilityLevel":  "能力级别",

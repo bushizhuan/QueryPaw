@@ -1737,9 +1737,9 @@
                     <Border Background="#FFFFFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="12" Padding="12">
                       <StackPanel Spacing="8">
                         <TextBlock Text="{Binding ConnectionEditorEndpointSectionText}" FontWeight="SemiBold" Foreground="#1F5F9B"/>
-                        <StackPanel Spacing="8" IsVisible="{Binding IsServerDatabaseProfileSelected}">
-                          <TextBlock Text="{Binding ServerFieldLabel}" Foreground="#4B5563"/>
-                          <Grid ColumnDefinitions="*,110" ColumnSpacing="8">
+                        <StackPanel Spacing="8" IsVisible="{Binding IsGenericConnectionFormVisible}">
+                          <TextBlock Text="{Binding ServerFieldLabel}" Foreground="#4B5563" IsVisible="{Binding IsServerDatabaseProfileSelected}"/>
+                          <Grid ColumnDefinitions="*,110" ColumnSpacing="8" IsVisible="{Binding IsServerDatabaseProfileSelected}">
                             <TextBox Grid.Column="0"
                                      Watermark="{Binding UiText.Server}"
                                      IsEnabled="{Binding ConnectionEditorCanEditFields}"
@@ -1751,7 +1751,7 @@
                                      Text="{Binding ConnectionEditorDraft.Port, Mode=TwoWay}"/>
                           </Grid>
                           <TextBlock Text="{Binding DatabaseFieldLabel}" Foreground="#4B5563"/>
-                          <TextBox Watermark="{Binding UiText.Database}"
+                          <TextBox Watermark="{Binding DatabaseFieldLabel}"
                                    IsEnabled="{Binding ConnectionEditorCanEditFields}"
                                    Text="{Binding ConnectionEditorDraft.Database, Mode=TwoWay}"/>
                         </StackPanel>
@@ -1811,7 +1811,7 @@
                       </StackPanel>
                     </Border>
 
-                    <Border Background="#FFFFFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="12" Padding="12">
+                    <Border Background="#FFFFFF" BorderBrush="#D7E5F2" BorderThickness="1" CornerRadius="12" Padding="12" IsVisible="{Binding IsConnectionAuthVisible}">
                       <StackPanel Spacing="8">
                         <TextBlock Text="{Binding ConnectionEditorAuthSectionText}" FontWeight="SemiBold" Foreground="#1F5F9B"/>
                         <ComboBox ItemsSource="{Binding AuthenticationModeOptions}"

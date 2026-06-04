@@ -238,10 +238,12 @@ public sealed class ObjectNode
         {
             "oracle" => "OR",
             "mysql" => "MY",
+            "mariadb" => "MA",
             "sqlserver" => "MS",
             "postgresql" => "PG",
             "kingbasees" => "KB",
             "dameng" => "DM",
+            "sqlite" => "SL",
             "mongodb" => "MG",
             _ => IsConnected ? "DB" : "db"
         };
@@ -253,10 +255,12 @@ public sealed class ObjectNode
         {
             "oracle" => "OracleLogo",
             "mysql" => "MySqlLogo",
+            "mariadb" => "MariaDbLogo",
             "sqlserver" => "SqlServerLogo",
             "postgresql" => "PostgreSqlLogo",
             "kingbasees" => "KingbaseLogo",
             "dameng" => "DamengLogo",
+            "sqlite" => "SqliteLogo",
             "mongodb" => "MongoDbLogo",
             _ => "Connection"
         };
@@ -268,10 +272,12 @@ public sealed class ObjectNode
         {
             "oracle" => "#E1261C",
             "mysql" => "#00758F",
+            "mariadb" => "#00758F",
             "sqlserver" => "#CC2927",
             "postgresql" => "#336791",
             "kingbasees" => "#C2410C",
             "dameng" => "#1D4ED8",
+            "sqlite" => "#2F80D8",
             "mongodb" => "#13AA52",
             _ => IsConnected ? "#2F80D8" : "#94A3B8"
         };
@@ -288,10 +294,12 @@ public sealed class ObjectNode
         {
             "oracle" => "#FFF1F0",
             "mysql" => "#E6F7FB",
+            "mariadb" => "#E6F7FB",
             "sqlserver" => "#FFF1F2",
             "postgresql" => "#EAF3FA",
             "kingbasees" => "#FFF7ED",
             "dameng" => "#EEF4FF",
+            "sqlite" => "#EAF5FF",
             "mongodb" => "#ECFDF3",
             _ => "#EAF5FF"
         };
@@ -308,10 +316,12 @@ public sealed class ObjectNode
         {
             "oracle" => "#F4B2AE",
             "mysql" => "#9BD7E4",
+            "mariadb" => "#9BD7E4",
             "sqlserver" => "#F2B4B3",
             "postgresql" => "#B9D0E1",
             "kingbasees" => "#FDBA74",
             "dameng" => "#BFD3FF",
+            "sqlite" => "#B8D8F4",
             "mongodb" => "#BBF7D0",
             _ => "#B8D8F4"
         };

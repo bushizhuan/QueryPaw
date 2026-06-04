@@ -319,10 +319,11 @@ public sealed class CommentMaintenanceService : ICommentMaintenanceService
 
         return provider.Name switch
         {
-            "MySql" => profile.Database?.Trim() ?? string.Empty,
+            "MySql" or "MariaDB" => profile.Database?.Trim() ?? string.Empty,
             "PostgreSql" or "KingbaseES" => "public",
             "Oracle" or "Dameng" => profile.UserName?.Trim() ?? string.Empty,
             "SqlServer" => "dbo",
+            "SQLite" => "main",
             _ => string.Empty
         };
     }
@@ -468,7 +469,7 @@ public sealed class CommentMaintenanceService : ICommentMaintenanceService
                                     name.StartsWith("ISEQ$$_", StringComparison.Ordinal),
             "PostgreSql" or "KingbaseES" => name.StartsWith("PG_", StringComparison.Ordinal) ||
                                             name.StartsWith("SQL_", StringComparison.Ordinal),
-            "MySql" => name.StartsWith("SYS_", StringComparison.Ordinal),
+            "MySql" or "MariaDB" => name.StartsWith("SYS_", StringComparison.Ordinal),
             "SqlServer" => name.StartsWith("SYS", StringComparison.Ordinal) ||
                            name.StartsWith("QUEUE_", StringComparison.Ordinal),
             _ => false
@@ -501,7 +502,7 @@ public sealed class CommentMaintenanceService : ICommentMaintenanceService
                    and c.relkind in ('r', 'v', 'm')
                  order by c.relname
                 """,
-            "MySql" => $"""
+            "MySql" or "MariaDB" => $"""
                 select table_schema as SCHEMA_NAME,
                        table_name as OBJECT_NAME,
                        'TABLE' as OBJECT_TYPE,
@@ -600,7 +601,7 @@ public sealed class CommentMaintenanceService : ICommentMaintenanceService
                    and not a.attisdropped
                  order by cls.relname, a.attnum
                 """,
-            "MySql" => $"""
+            "MySql" or "MariaDB" => $"""
                 select c.table_schema as SCHEMA_NAME,
                        c.table_name as TABLE_NAME,
                        'TABLE' as OBJECT_TYPE,
@@ -666,7 +667,7 @@ public sealed class CommentMaintenanceService : ICommentMaintenanceService
                 "materialized view" => $"comment on materialized view {QuoteAnsiQualifiedName(schemaName, objectName)} is {BuildAnsiCommentLiteral(providerName, comment)};",
                 _ => $"comment on table {QuoteAnsiQualifiedName(schemaName, objectName)} is {BuildAnsiCommentLiteral(providerName, comment)};"
             },
-            "MySql" when normalizedType == "table" => $"alter table {QuoteMySqlQualifiedName(schemaName, objectName)} comment = {QuoteSqlLiteral(comment)};",
+            "MySql" or "MariaDB" when normalizedType == "table" => $"alter table {QuoteMySqlQualifiedName(schemaName, objectName)} comment = {QuoteSqlLiteral(comment)};",
             "SqlServer" when normalizedType is "table" or "view" => BuildSqlServerTableCommentSql(schemaName, objectName, normalizedType, comment),
             _ => string.Empty
         };
@@ -679,7 +680,7 @@ public sealed class CommentMaintenanceService : ICommentMaintenanceService
         {
             "Oracle" or "Dameng" or "PostgreSql" or "KingbaseES" =>
                 $"comment on column {QuoteAnsiQualifiedName(column.SchemaName, column.TableName, column.ColumnName)} is {BuildAnsiCommentLiteral(providerName, column.EditedComment)};",
-            "MySql" when normalizedType == "table" => BuildMySqlColumnCommentSql(column),
+            "MySql" or "MariaDB" when normalizedType == "table" => BuildMySqlColumnCommentSql(column),
             "SqlServer" when normalizedType is "table" or "view" => BuildSqlServerColumnCommentSql(column),
             _ => string.Empty
         };

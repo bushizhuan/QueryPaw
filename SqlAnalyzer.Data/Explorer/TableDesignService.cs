@@ -163,9 +163,10 @@ public sealed class TableDesignService : ITableDesignService
 
         return provider.Name switch
         {
-            "MySql" => profile.Database?.Trim() ?? string.Empty,
+            "MySql" or "MariaDB" => profile.Database?.Trim() ?? string.Empty,
             "PostgreSql" or "KingbaseES" => "public",
             "Oracle" or "Dameng" => profile.UserName?.Trim() ?? string.Empty,
+            "SQLite" => "main",
             _ => string.Empty
         };
     }
@@ -302,7 +303,7 @@ select column_name,
  where table_schema = '{escapedSchema}'
    and table_name = '{escapedTable}'
  order by ordinal_position",
-            "MySql" => $@"
+            "MySql" or "MariaDB" => $@"
 select column_name,
        data_type,
        character_maximum_length,
@@ -314,6 +315,16 @@ select column_name,
  where table_schema = '{escapedSchema}'
    and table_name = '{escapedTable}'
  order by ordinal_position",
+            "SQLite" => $@"
+select name,
+       type,
+       null,
+       null,
+       null,
+       case when [notnull] = 0 then 'YES' else 'NO' end,
+       cid + 1
+  from pragma_table_info('{escapedTable}')
+ order by cid",
             _ => string.Empty
         };
 
@@ -405,7 +416,7 @@ select a.attname as column_name,
  where n.nspname = '{escapedSchema}'
    and c.relname = '{escapedTable}'
  order by a.attnum",
-            "MySql" => $@"
+            "MySql" or "MariaDB" => $@"
 select column_name, column_comment
   from information_schema.columns
  where table_schema = '{escapedSchema}'
@@ -491,7 +502,7 @@ select kcu.column_name
    and tc.table_schema = '{escapedSchema}'
    and tc.table_name = '{escapedTable}'
  order by kcu.ordinal_position",
-            "MySql" => $@"
+            "MySql" or "MariaDB" => $@"
 select kcu.column_name
   from information_schema.table_constraints tc
   join information_schema.key_column_usage kcu
@@ -502,6 +513,11 @@ select kcu.column_name
    and tc.table_schema = '{escapedSchema}'
    and tc.table_name = '{escapedTable}'
  order by kcu.ordinal_position",
+            "SQLite" => $@"
+select name
+  from pragma_table_info('{escapedTable}')
+ where pk > 0
+ order by pk",
             _ => string.Empty
         };
 
@@ -562,6 +578,14 @@ select aic.index_name,
  where aic.index_owner = '{escapedSchema}'
    and aic.table_name = '{escapedTable}'
  order by aic.index_name, aic.column_position",
+            "SQLite" => $@"
+select il.name as index_name,
+       case when il.""unique"" = 1 then 'UNIQUE' else '' end as uniqueness,
+       ii.name as column_name,
+       ii.seqno + 1 as column_position
+  from pragma_index_list('{escapedTable}') il
+  join pragma_index_info(il.name) ii
+ order by il.name, ii.seqno",
             _ => string.Empty
         };
 
@@ -632,6 +656,14 @@ select acc.constraint_name,
    and ac.owner = '{escapedSchema}'
    and ac.table_name = '{escapedTable}'
  order by acc.constraint_name, acc.position",
+            "SQLite" => $@"
+select il.name as constraint_name,
+       ii.name as column_name,
+       ii.seqno + 1 as position
+  from pragma_index_list('{escapedTable}') il
+  join pragma_index_info(il.name) ii
+ where il.""unique"" = 1
+ order by il.name, ii.seqno",
             _ => string.Empty
         };
 
@@ -722,6 +754,15 @@ select acc.constraint_name,
    and ac.owner = '{escapedSchema}'
    and ac.table_name = '{escapedTable}'
  order by acc.constraint_name, acc.position",
+            "SQLite" => $@"
+select 'FK_' || id as constraint_name,
+       ""from"" as column_name,
+       '' as referenced_owner,
+       ""table"" as referenced_table,
+       ""to"" as referenced_column,
+       seq + 1 as position
+  from pragma_foreign_key_list('{escapedTable}')
+ order by id, seq",
             _ => string.Empty
         };
 
@@ -841,6 +882,12 @@ select trigger_name, trigger_type, triggering_event, status, description
  where owner = '{escapedSchema}'
    and table_name = '{escapedTable}'
  order by trigger_name",
+            "SQLite" => $@"
+select name, '', '', '', coalesce(sql, '')
+  from sqlite_master
+ where type = 'trigger'
+   and tbl_name = '{escapedTable}'
+ order by name",
             _ => string.Empty
         };
 
@@ -973,7 +1020,7 @@ select coalesce(obj_description(c.oid, 'pg_class'), '')
     on n.oid = c.relnamespace
  where n.nspname = '{escapedSchema}'
    and c.relname = '{escapedTable}'",
-            "MySql" => $@"
+            "MySql" or "MariaDB" => $@"
 select table_comment
   from information_schema.tables
  where table_schema = '{escapedSchema}'
@@ -1088,7 +1135,7 @@ select table_comment
         return providerName switch
         {
             "SqlServer" => $"[{normalized.Replace("]", "]]")}]",
-            "MySql" => $"`{normalized.Replace("`", "``")}`",
+            "MySql" or "MariaDB" => $"`{normalized.Replace("`", "``")}`",
             _ => $"\"{normalized.Replace("\"", "\"\"")}\""
         };
     }

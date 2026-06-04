@@ -13,6 +13,7 @@ public static class ConnectionProfileUtilities
         {
             "oracle" => 1521,
             "mysql" => 3306,
+            "mariadb" => 3306,
             "sqlserver" => 1433,
             "postgresql" => 5432,
             "kingbasees" => 54321,
@@ -28,6 +29,7 @@ public static class ConnectionProfileUtilities
         {
             "oracle" => new[] { "Default", "SYSDBA", "SYSOPER" },
             "sqlserver" => new[] { "Default", "IntegratedSecurity" },
+            "sqlite" => Array.Empty<string>(),
             _ => new[] { "Default" }
         };
     }
@@ -124,6 +126,11 @@ public static class ConnectionProfileUtilities
 
     public static string BuildIdentityEndpoint(ConnectionProfile profile)
     {
+        if (string.Equals(profile.ProviderName, "SQLite", StringComparison.OrdinalIgnoreCase))
+        {
+            return profile.Database ?? string.Empty;
+        }
+
         if (string.Equals(profile.ProviderName, "Oracle", StringComparison.OrdinalIgnoreCase))
         {
             if (string.Equals(profile.OracleConnectionMode, "Tns", StringComparison.OrdinalIgnoreCase))
@@ -243,6 +250,18 @@ public static class ConnectionProfileUtilities
         if (profile.Port <= 0)
         {
             profile.Port = GetDefaultPort(provider.Name) ?? 0;
+        }
+
+        if (string.Equals(provider.Name, "SQLite", StringComparison.OrdinalIgnoreCase))
+        {
+            profile.Port = 0;
+            profile.AuthenticationMode = string.Empty;
+            profile.Server = string.Empty;
+            profile.UserName = string.Empty;
+            profile.Password = string.Empty;
+            profile.EncryptedPassword = string.Empty;
+            profile.SavePassword = false;
+            return;
         }
 
         if (string.IsNullOrWhiteSpace(profile.AuthenticationMode))

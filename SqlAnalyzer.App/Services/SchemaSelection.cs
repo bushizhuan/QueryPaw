@@ -42,6 +42,15 @@ public static class SchemaSelection
             }
         }
 
+        if (string.Equals(profile.ProviderName, "SQLite", StringComparison.OrdinalIgnoreCase))
+        {
+            string? match = orderedSchemas.FirstOrDefault(item => string.Equals(item, "main", StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(match))
+            {
+                return match;
+            }
+        }
+
         return string.Empty;
     }
 
@@ -81,10 +90,11 @@ public static class SchemaSelection
 
         return profile.ProviderName switch
         {
-            "MySql" => profile.Database?.Trim() ?? string.Empty,
+            "MySql" or "MariaDB" => profile.Database?.Trim() ?? string.Empty,
             "PostgreSql" or "KingbaseES" => "public",
             "Oracle" or "Dameng" => profile.UserName?.Trim() ?? string.Empty,
             "SqlServer" => "dbo",
+            "SQLite" => "main",
             _ => string.Empty
         };
     }

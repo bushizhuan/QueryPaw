@@ -279,11 +279,15 @@ public class MainWindowViewModel : ViewModelBase
 
 	public bool IsMongoProfileSelected => string.Equals(_connectionEditorDraft?.ProviderName, "MongoDb", StringComparison.OrdinalIgnoreCase);
 
-	public bool IsServerDatabaseProfileSelected => !IsOracleProfileSelected && !IsMongoProfileSelected;
+	public bool IsSqliteProfileSelected => string.Equals(_connectionEditorDraft?.ProviderName, "SQLite", StringComparison.OrdinalIgnoreCase);
 
-	public bool IsGenericConnectionFormVisible => IsServerDatabaseProfileSelected;
+	public bool IsServerDatabaseProfileSelected => !IsOracleProfileSelected && !IsMongoProfileSelected && !IsSqliteProfileSelected;
+
+	public bool IsGenericConnectionFormVisible => IsServerDatabaseProfileSelected || IsSqliteProfileSelected;
 
 	public bool IsGenericPortVisible => IsServerDatabaseProfileSelected;
+
+	public bool IsConnectionAuthVisible => !IsSqliteProfileSelected;
 
 	public bool IsOracleHostMode => IsOracleProfileSelected && string.Equals(_connectionEditorDraft?.OracleConnectionMode ?? "HostService", "HostService", StringComparison.OrdinalIgnoreCase);
 
@@ -293,7 +297,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	public string ServerFieldLabel => IsMongoProfileSelected ? UiText.Host : UiText.Server;
 
-	public string DatabaseFieldLabel => IsMongoProfileSelected ? UiText.MongoDatabaseAuthSource : UiText.Database;
+	public string DatabaseFieldLabel => IsSqliteProfileSelected ? UiText.DatabaseFile : IsMongoProfileSelected ? UiText.MongoDatabaseAuthSource : UiText.Database;
 
 	public bool HasResults => ResultSets.Count > 0;
 

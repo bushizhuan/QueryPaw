@@ -248,7 +248,7 @@ public sealed class ResultSetViewItem
             {
                 "oracle" => $"to_date('{dateTime:yyyy-MM-dd}', 'YYYY-MM-DD')",
                 "postgresql" or "kingbasees" => $"date '{dateTime:yyyy-MM-dd}'",
-                "mysql" => $"STR_TO_DATE('{dateTime:yyyy-MM-dd}', '%Y-%m-%d')",
+                "mysql" or "mariadb" => $"STR_TO_DATE('{dateTime:yyyy-MM-dd}', '%Y-%m-%d')",
                 "sqlserver" => $"cast('{dateTime:yyyy-MM-dd}' as date)",
                 _ => $"'{dateTime:yyyy-MM-dd}'"
             };
@@ -258,7 +258,7 @@ public sealed class ResultSetViewItem
         {
             "oracle" => $"to_timestamp('{dateTime:yyyy-MM-dd HH:mm:ss.fff}', 'YYYY-MM-DD HH24:MI:SS.FF3')",
             "postgresql" or "kingbasees" => $"timestamp '{dateTime:yyyy-MM-dd HH:mm:ss.fff}'",
-            "mysql" => $"STR_TO_DATE('{dateTime:yyyy-MM-dd HH:mm:ss.fff}', '%Y-%m-%d %H:%i:%s.%f')",
+            "mysql" or "mariadb" => $"STR_TO_DATE('{dateTime:yyyy-MM-dd HH:mm:ss.fff}', '%Y-%m-%d %H:%i:%s.%f')",
             "sqlserver" => $"cast('{dateTime:yyyy-MM-dd HH:mm:ss.fff}' as datetime2)",
             _ => $"'{dateTime:yyyy-MM-dd HH:mm:ss.fff}'"
         };

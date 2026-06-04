@@ -607,7 +607,7 @@ public sealed class SqlExecutionService : ISqlExecutionService
             "Oracle" => $"ALTER SESSION SET CURRENT_SCHEMA = {quotedSchema}",
             "SqlServer" => null,
             "PostgreSql" => $"SET search_path TO {quotedSchema}",
-            "MySql" => $"USE {quotedSchema}",
+            "MySql" or "MariaDB" => $"USE {quotedSchema}",
             "KingbaseES" => $"SET search_path TO {quotedSchema}",
             "Dameng" => $"SET SCHEMA {quotedSchema}",
             _ => null
@@ -1937,7 +1937,7 @@ select kcu.column_name
    and tc.table_schema = '{escapedSchema}'
    and tc.table_name = '{escapedTable}'
  order by kcu.ordinal_position",
-            "MySql" => $@"
+            "MySql" or "MariaDB" => $@"
 select kcu.column_name
   from information_schema.table_constraints tc
   join information_schema.key_column_usage kcu
@@ -2263,6 +2263,7 @@ select kcu.column_name
         return provider.Name switch
         {
             "PostgreSql" or "KingbaseES" => "public",
+            "SQLite" => "main",
             _ => string.Empty
         };
     }
@@ -2295,7 +2296,7 @@ select kcu.column_name
         return provider.Name switch
         {
             "SqlServer" => $"[{normalized.Replace("]", "]]")}]",
-            "MySql" => $"`{normalized.Replace("`", "``")}`",
+            "MySql" or "MariaDB" => $"`{normalized.Replace("`", "``")}`",
             _ => $"\"{normalized.Replace("\"", "\"\"")}\""
         };
     }
