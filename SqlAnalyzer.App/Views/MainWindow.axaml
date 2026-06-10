@@ -975,6 +975,7 @@
                               x:Name="CommentTablesGrid"
                               ItemsSource="{Binding SelectedCommentTables}"
                               AutoGenerateColumns="False"
+                              CanUserResizeColumns="True"
                               CanUserSortColumns="True"
                               GridLinesVisibility="All"
                               HeadersVisibility="Column"
@@ -985,16 +986,61 @@
                             <DataTemplate>
                               <Border Background="Transparent"
                                       Padding="0"
+                                      ToolTip.Tip="{Binding ObjectName}"
                                       PointerPressed="CommentTableNameCell_PointerPressed">
-                                <TextBlock Text="{Binding ObjectName}"/>
+                                <TextBlock Text="{Binding ObjectName}"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center"/>
                               </Border>
                             </DataTemplate>
                           </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="{Binding UiText.ObjectType}" Binding="{Binding ObjectType}" IsReadOnly="True" Width="0.9*"/>
-                        <DataGridTextColumn Header="{Binding UiText.CurrentComment}" Binding="{Binding CurrentComment}" IsReadOnly="True" Width="1.5*"/>
-                        <DataGridTextColumn Header="{Binding UiText.NewComment}" Binding="{Binding EditedComment, Mode=TwoWay}" Width="1.8*"/>
-                        <DataGridTextColumn Header="{Binding UiText.Status}" Binding="{Binding StatusText}" IsReadOnly="True" Width="0.8*"/>
+                        <DataGridTemplateColumn Header="{Binding UiText.ObjectType}" IsReadOnly="True" Width="0.9*">
+                          <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding ObjectType}"
+                                         TextTrimming="CharacterEllipsis"
+                                         ToolTip.Tip="{Binding ObjectType}"
+                                         VerticalAlignment="Center"/>
+                            </DataTemplate>
+                          </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="{Binding UiText.CurrentComment}" IsReadOnly="True" Width="1.5*">
+                          <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding CurrentComment}"
+                                         TextTrimming="CharacterEllipsis"
+                                         ToolTip.Tip="{Binding CurrentComment}"
+                                         VerticalAlignment="Center"/>
+                            </DataTemplate>
+                          </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="{Binding UiText.NewComment}" Width="1.8*">
+                          <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding EditedComment}"
+                                         TextTrimming="CharacterEllipsis"
+                                         ToolTip.Tip="{Binding EditedComment}"
+                                         VerticalAlignment="Center"/>
+                            </DataTemplate>
+                          </DataGridTemplateColumn.CellTemplate>
+                          <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                              <TextBox Text="{Binding EditedComment, Mode=TwoWay}"
+                                       ToolTip.Tip="{Binding EditedComment}"/>
+                            </DataTemplate>
+                          </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="{Binding UiText.Status}" IsReadOnly="True" Width="0.8*">
+                          <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding StatusText}"
+                                         TextTrimming="CharacterEllipsis"
+                                         ToolTip.Tip="{Binding StatusText}"
+                                         VerticalAlignment="Center"/>
+                            </DataTemplate>
+                          </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                       </DataGrid.Columns>
                   </DataGrid>
                 </Grid>
@@ -1025,17 +1071,78 @@
                   <DataGrid Grid.Row="1"
                             ItemsSource="{Binding SelectedCommentColumns}"
                             AutoGenerateColumns="False"
+                            CanUserResizeColumns="True"
                             CanUserSortColumns="True"
                             GridLinesVisibility="All"
                             HeadersVisibility="Column"
                             IsReadOnly="False">
                     <DataGrid.Columns>
-                      <DataGridTextColumn Header="{Binding UiText.TableName}" Binding="{Binding TableName}" IsReadOnly="True" Width="1.1*"/>
-                      <DataGridTextColumn Header="{Binding UiText.ColumnName}" Binding="{Binding ColumnName}" IsReadOnly="True" Width="1.1*"/>
-                      <DataGridTextColumn Header="{Binding UiText.DataType}" Binding="{Binding DataType}" IsReadOnly="True" Width="1.0*"/>
-                      <DataGridTextColumn Header="{Binding UiText.CurrentComment}" Binding="{Binding CurrentComment}" IsReadOnly="True" Width="1.5*"/>
-                      <DataGridTextColumn Header="{Binding UiText.NewComment}" Binding="{Binding EditedComment, Mode=TwoWay}" Width="1.8*"/>
-                      <DataGridTextColumn Header="{Binding UiText.Status}" Binding="{Binding StatusText}" IsReadOnly="True" Width="0.8*"/>
+                      <DataGridTemplateColumn Header="{Binding UiText.TableName}" IsReadOnly="True" Width="1.1*">
+                        <DataGridTemplateColumn.CellTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding TableName}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip.Tip="{Binding TableName}"
+                                       VerticalAlignment="Center"/>
+                          </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                      </DataGridTemplateColumn>
+                      <DataGridTemplateColumn Header="{Binding UiText.ColumnName}" IsReadOnly="True" Width="1.1*">
+                        <DataGridTemplateColumn.CellTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding ColumnName}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip.Tip="{Binding ColumnName}"
+                                       VerticalAlignment="Center"/>
+                          </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                      </DataGridTemplateColumn>
+                      <DataGridTemplateColumn Header="{Binding UiText.DataType}" IsReadOnly="True" Width="1.0*">
+                        <DataGridTemplateColumn.CellTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding DataType}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip.Tip="{Binding DataType}"
+                                       VerticalAlignment="Center"/>
+                          </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                      </DataGridTemplateColumn>
+                      <DataGridTemplateColumn Header="{Binding UiText.CurrentComment}" IsReadOnly="True" Width="1.5*">
+                        <DataGridTemplateColumn.CellTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding CurrentComment}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip.Tip="{Binding CurrentComment}"
+                                       VerticalAlignment="Center"/>
+                          </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                      </DataGridTemplateColumn>
+                      <DataGridTemplateColumn Header="{Binding UiText.NewComment}" Width="1.8*">
+                        <DataGridTemplateColumn.CellTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding EditedComment}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip.Tip="{Binding EditedComment}"
+                                       VerticalAlignment="Center"/>
+                          </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                          <DataTemplate>
+                            <TextBox Text="{Binding EditedComment, Mode=TwoWay}"
+                                     ToolTip.Tip="{Binding EditedComment}"/>
+                          </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                      </DataGridTemplateColumn>
+                      <DataGridTemplateColumn Header="{Binding UiText.Status}" IsReadOnly="True" Width="0.8*">
+                        <DataGridTemplateColumn.CellTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding StatusText}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip.Tip="{Binding StatusText}"
+                                       VerticalAlignment="Center"/>
+                          </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                      </DataGridTemplateColumn>
                     </DataGrid.Columns>
                   </DataGrid>
                 </Grid>
