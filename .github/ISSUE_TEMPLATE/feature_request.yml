@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest an improvement or new workflow for QueryPaw.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or workflow
+      description: What are you trying to do, and what makes it hard today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior you would like QueryPaw to support.
+    validations:
+      required: true
+  - type: input
+    id: database
+    attributes:
+      label: Database or environment
+      description: Optional. Mention database type/version if relevant.
+      placeholder: MariaDB 11 / SQLite / Dameng / SQL Server
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional. How do you solve this today?

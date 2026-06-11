@@ -1,0 +1,44 @@
+name: Database compatibility report
+description: Share results from testing QueryPaw with a database version.
+title: "[Compatibility]: "
+labels:
+  - compatibility
+body:
+  - type: input
+    id: database
+    attributes:
+      label: Database and version
+      placeholder: MariaDB 11.4 / SQLite 3.46 / Oracle 19c
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Windows 11 24H2
+    validations:
+      required: true
+  - type: input
+    id: querypaw
+    attributes:
+      label: QueryPaw version
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: checkboxes
+    id: tested
+    attributes:
+      label: Tested areas
+      options:
+        - label: Connection opens successfully
+        - label: Object explorer loads schemas/tables/views
+        - label: Query execution works
+        - label: Result grid renders data correctly
+        - label: SQL completion works
+        - label: Comment maintenance works
+        - label: Table design or metadata details work
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Share what worked, what failed, and any sanitized logs or SQL examples.
