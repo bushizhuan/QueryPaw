@@ -2,8 +2,8 @@
 
 [中文](#中文) | [English](#english)
 
-[![Latest release](https://img.shields.io/github/v/release/bushizhuan/QueryPaw?style=flat-square)](https://github.com/bushizhuan/QueryPaw/releases/latest)
-[![License: MIT](https://img.shields.io/github/license/bushizhuan/QueryPaw?style=flat-square)](LICENSE)
+[![Release: v1.0.0](https://img.shields.io/badge/release-v1.0.0-2ea44f?style=flat-square)](https://github.com/bushizhuan/QueryPaw/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?style=flat-square)](https://dotnet.microsoft.com/)
 [![Avalonia](https://img.shields.io/badge/UI-Avalonia-8B44F7?style=flat-square)](https://avaloniaui.net/)
 
