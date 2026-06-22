@@ -2100,6 +2100,12 @@ public partial class MainWindow : Window
 			return;
 		}
 
+		if (_completionController.ShouldClosePopupAfterTextInput(e.Text))
+		{
+			HideCompletionPopup();
+			return;
+		}
+
 		if (ShouldTriggerCompletionFromTextInput(e.Text))
 		{
 			AppendUiLog($"CompletionTextInput: text={ToCompletionLogValue(e.Text)}; caret={EditorTextBox.CaretOffset}");

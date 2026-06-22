@@ -72,6 +72,10 @@ public sealed class CompletionController
     {
         return key is Key.Space or Key.Delete or Key.Back;
     }
+    public bool ShouldClosePopupAfterTextInput(string? text)
+    {
+        return !string.IsNullOrEmpty(text) && text.Any(IsCompletionTerminator);
+    }
     public PopupKeyAction GetPopupKeyAction(Key key)
     {
         return key switch
@@ -308,6 +312,13 @@ public sealed class CompletionController
     private static bool IsIdentifierPart(char value)
     {
         return char.IsLetterOrDigit(value) || value == '_' || value > 127;
+    }
+
+    private static bool IsCompletionTerminator(char value)
+    {
+        return value is '=' or '>' or '<' or '!' or '+' or '-' or '*' or '/' or '%' or '|'
+            or '&' or '^' or '~' or '?' or ':' or ',' or ';' or '(' or ')' or '[' or ']'
+            or '{' or '}';
     }
 
     private static (int Start, int Length) GetLocalizedTokenBeforeTrailingWhitespace(string text, int caret)
