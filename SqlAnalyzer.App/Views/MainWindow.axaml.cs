@@ -510,9 +510,19 @@ public partial class MainWindow : Window
 	private void InitializeEditor()
 	{
 		_textMateInstallation = EditorTextBox.InstallTextMate(_registryOptions);
+		ConfigureEditorSelectionContrast();
 		EditorTextBox.TextArea.AddHandler(InputElement.PointerPressedEvent, EditorSurface_PointerPressed, RoutingStrategies.Tunnel | RoutingStrategies.Bubble);
 		EditorTextBox.TextArea.TextView.AddHandler(InputElement.PointerPressedEvent, EditorSurface_PointerPressed, RoutingStrategies.Tunnel | RoutingStrategies.Bubble);
 	}
+
+	private void ConfigureEditorSelectionContrast()
+	{
+		EditorTextBox.SearchResultsBrush = Brush.Parse("#FFF2A8");
+		EditorTextBox.TextArea.SelectionBrush = Brush.Parse("#2563EB");
+		EditorTextBox.TextArea.SelectionForeground = Brushes.White;
+		EditorTextBox.TextArea.SelectionBorder = new Pen(Brush.Parse("#1D4ED8"), 1.0);
+	}
+
 	private void EditorSurface_PointerPressed(object? sender, PointerPressedEventArgs e)
 	{
 		if (!e.KeyModifiers.HasFlag(KeyModifiers.Alt))
@@ -523,7 +533,7 @@ public partial class MainWindow : Window
 	public void EnsureVisibleOnStartup()
 	{
 		base.ShowInTaskbar = true;
-		base.WindowState = WindowState.Normal;
+		base.WindowState = WindowState.Maximized;
 		base.Topmost = true;
 		Activate();
 		Dispatcher.UIThread.Post(delegate
@@ -1978,6 +1988,7 @@ public partial class MainWindow : Window
 
 	private void ReplaceAllButton_Click(object? sender, RoutedEventArgs e)
 	{
+		HideCompletionPopup();
 		if (!string.IsNullOrEmpty(ViewModel.SearchText))
 		{
 			TextEditor editorTextBox = EditorTextBox;
@@ -2007,16 +2018,12 @@ public partial class MainWindow : Window
 		}
 		else if (e.Key == Key.F && e.KeyModifiers.HasFlag(KeyModifiers.Control))
 		{
-			ViewModel.ShowSearch();
-			SearchTextBox.Focus();
-			SearchTextBox.SelectAll();
+			ApplySearchPanelState(_searchPanelController.OpenFind(ViewModel));
 			e.Handled = true;
 		}
 		else if (e.Key == Key.H && e.KeyModifiers.HasFlag(KeyModifiers.Control))
 		{
-			ViewModel.ShowSearch(includeReplace: true);
-			ReplaceTextBox.Focus();
-			ReplaceTextBox.SelectAll();
+			ApplySearchPanelState(_searchPanelController.OpenReplace(ViewModel));
 			e.Handled = true;
 		}
 		else if (e.Key == Key.R && e.KeyModifiers.HasFlag(KeyModifiers.Control))
@@ -2076,7 +2083,7 @@ public partial class MainWindow : Window
 
 	private void EditorTextBox_KeyUp(object? sender, KeyEventArgs e)
 	{
-		if (_suppressCompletionDepth <= 0)
+		if (!ShouldSuppressCompletionPopup())
 		{
 			// TextInput schedules completion work; KeyUp only closes the popup for keys that leave no useful prefix.
 			if (_completionController.ShouldHideOnKeyUp(e.Key) && !ShouldKeepLocalizedCompletionVisibleForKey(e.Key))
@@ -2095,8 +2102,9 @@ public partial class MainWindow : Window
 
 	private void EditorTextBox_TextInput(object? sender, TextInputEventArgs e)
 	{
-		if (_suppressCompletionDepth > 0 || string.IsNullOrWhiteSpace(e.Text))
+		if (ShouldSuppressCompletionPopup() || string.IsNullOrWhiteSpace(e.Text))
 		{
+			HideCompletionPopup();
 			return;
 		}
 
@@ -3271,6 +3279,7 @@ public partial class MainWindow : Window
 
 	private void FindNext()
 	{
+		HideCompletionPopup();
 		if (!string.IsNullOrEmpty(ViewModel.SearchText) && !string.IsNullOrEmpty(EditorTextBox.Text))
 		{
 			SearchMatchResult searchMatchResult = _searchController.FindNext(EditorTextBox.Text, ViewModel.SearchText, EditorTextBox.SelectionStart, EditorTextBox.SelectionLength);
@@ -3284,6 +3293,7 @@ public partial class MainWindow : Window
 
 	private void ReplaceCurrent()
 	{
+		HideCompletionPopup();
 		if (!string.IsNullOrEmpty(ViewModel.SearchText))
 		{
 			string selectedText = GetSelectedText();
@@ -3366,6 +3376,11 @@ public partial class MainWindow : Window
 		{
 			return;
 		}
+		if (ShouldSuppressCompletionPopup())
+		{
+			HideCompletionPopup();
+			return;
+		}
 
 		// Completion may inspect SQL context and metadata; a short pause keeps fast typing smooth.
 		_pendingCompletionRefreshText = textSnapshot;
@@ -3385,8 +3400,13 @@ public partial class MainWindow : Window
 			await Task.Delay(80, cancellationToken);
 			await Dispatcher.UIThread.InvokeAsync(delegate
 			{
-				if (cancellationToken.IsCancellationRequested || version != _deferredCompletionRefreshVersion || _suppressCompletionDepth > 0)
+				if (cancellationToken.IsCancellationRequested || version != _deferredCompletionRefreshVersion)
 				{
+					return;
+				}
+				if (ShouldSuppressCompletionPopup())
+				{
+					HideCompletionPopup();
 					return;
 				}
 
@@ -3405,6 +3425,11 @@ public partial class MainWindow : Window
 	{
 		if (_isShuttingDown)
 		{
+			return;
+		}
+		if (ShouldSuppressCompletionPopup())
+		{
+			HideCompletionPopup();
 			return;
 		}
 
@@ -3475,6 +3500,11 @@ public partial class MainWindow : Window
 			{
 				if (_isShuttingDown)
 				{
+					return;
+				}
+				if (ShouldSuppressCompletionPopup())
+				{
+					HideCompletionPopup();
 					return;
 				}
 
@@ -3881,6 +3911,11 @@ public partial class MainWindow : Window
 
 	private void ApplySearchPanelState(SearchPanelState state)
 	{
+		if (state.IsVisible)
+		{
+			HideCompletionPopup();
+		}
+
 		switch (state.FocusTarget)
 		{
 		case SearchPanelFocusTarget.Search:
@@ -3906,6 +3941,13 @@ public partial class MainWindow : Window
 		}
 		_lastCompletionPopupCaretOffset = -1;
 		_lastCompletionPopupScrollOffset = default;
+	}
+
+	private bool ShouldSuppressCompletionPopup()
+	{
+		return _suppressCompletionDepth > 0 ||
+		       (TryGetViewModel()?.IsSearchVisible ?? false) ||
+		       (EditorTextBox?.SearchPanel?.IsOpened ?? false);
 	}
 
 	private bool ShouldForceTextEditorHighlight(MainWindowViewModel viewModel)
