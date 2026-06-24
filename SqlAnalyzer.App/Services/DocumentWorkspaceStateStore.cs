@@ -125,7 +125,29 @@ public sealed class DocumentWorkspaceStateStore
 
     public void RemoveWorkspaceStates(string documentId)
     {
-        // 查询页的执行状态可能还要参与会话恢复，这里只清理重型工作台。
+        if (_documentStates.Remove(documentId, out DocumentExecutionState? executionState))
+        {
+            var cancellationTokenSource = executionState.CancellationTokenSource;
+            if (cancellationTokenSource != null)
+            {
+                cancellationTokenSource.Cancel();
+                if (!executionState.IsExecuting)
+                {
+                    cancellationTokenSource.Dispose();
+                }
+            }
+            executionState.CancellationTokenSource = null;
+            executionState.ResultSets.Clear();
+            executionState.WorkspaceTabs.Clear();
+            executionState.AvailableSchemas.Clear();
+            executionState.SelectedResultSet = null;
+            executionState.SelectedWorkspaceTab = null;
+            executionState.ExecutionPlan = null;
+            executionState.ValueDetail = null;
+            executionState.IsExecuting = false;
+            executionState.IsRenderingResults = false;
+        }
+
         _commentWorkspaceStates.Remove(documentId);
         _modelDiagramStates.Remove(documentId);
         _objectEditorStates.Remove(documentId);

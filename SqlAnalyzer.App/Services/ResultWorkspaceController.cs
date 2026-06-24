@@ -224,10 +224,13 @@ public sealed class ResultWorkspaceController
                 BorderThickness = new Thickness(0, 0, visualIndex == orderedColumns.Count - 1 ? 0 : 1, 0),
                 Height = 30,
                 Background = resultSet.IsEditMode && column.IsEditable ? Brush.Parse("#FFFBEB") : Brushes.Transparent,
-                Child = BuildDisplayCellContent(cellText),
-                ContextMenu = cellContextMenuFactory(context)
+                Child = BuildDisplayCellContent(cellText)
             };
-            ToolTip.SetTip(cellBorder, cellText);
+            cellBorder.ContextRequested += (_, _) =>
+            {
+                cellBorder.ContextMenu ??= cellContextMenuFactory(context);
+            };
+            cellBorder.PointerEntered += LazyCellToolTip_PointerEntered;
             RegisterCellBorder(context, cellBorder);
             Grid.SetColumn(cellBorder, visualIndex);
             rowGrid.Children.Add(cellBorder);
@@ -266,6 +269,23 @@ public sealed class ResultWorkspaceController
         }
 
         return cellTextBlock;
+    }
+
+    private static void LazyCellToolTip_PointerEntered(object? sender, PointerEventArgs e)
+    {
+        if (sender is not Border { Tag: ResultCellContext context } border)
+        {
+            return;
+        }
+
+        border.PointerEntered -= LazyCellToolTip_PointerEntered;
+        string cellText = context.ColumnIndex < context.Row.Values.Count
+            ? context.Row.Values[context.ColumnIndex]
+            : string.Empty;
+        if (!string.IsNullOrEmpty(cellText))
+        {
+            ToolTip.SetTip(border, cellText);
+        }
     }
 
     public TextBox BuildEditableCellEditor(
