@@ -54,14 +54,14 @@ public static class ExplorerNodeUtilities
             return;
         }
 
-        bool isDocumentProvider = string.Equals(provider?.Kind, "Document", StringComparison.OrdinalIgnoreCase);
+        bool isNonRelationalProvider = !string.Equals(provider?.Kind, "Relational", StringComparison.OrdinalIgnoreCase);
         if (!node.IsLoaded && node.Children.Count == 0)
         {
-            node.HasUnloadedChildren = !isDocumentProvider;
+            node.HasUnloadedChildren = !isNonRelationalProvider;
         }
 
         node.IsExpanded = node.IsExpanded || isActive;
-        if (isDocumentProvider)
+        if (isNonRelationalProvider)
         {
             node.IsLoaded = true;
             node.HasUnloadedChildren = false;

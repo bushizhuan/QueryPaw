@@ -67,7 +67,7 @@ public sealed class CompletionMetadataService : ICompletionMetadataService
         }
 
         DatabaseProviderDefinition provider = _runtime.GetProvider(profile);
-        if (string.Equals(provider.Kind, "Document", StringComparison.OrdinalIgnoreCase))
+        if (!IsRelationalProvider(provider))
         {
             return Array.Empty<CompletionEntry>();
         }
@@ -160,7 +160,7 @@ public sealed class CompletionMetadataService : ICompletionMetadataService
         }
 
         DatabaseProviderDefinition provider = _runtime.GetProvider(profile);
-        if (string.Equals(provider.Kind, "Document", StringComparison.OrdinalIgnoreCase))
+        if (!IsRelationalProvider(provider))
         {
             return Array.Empty<CompletionEntry>();
         }
@@ -259,7 +259,7 @@ public sealed class CompletionMetadataService : ICompletionMetadataService
         }
 
         DatabaseProviderDefinition provider = _runtime.GetProvider(profile);
-        if (string.Equals(provider.Kind, "Document", StringComparison.OrdinalIgnoreCase))
+        if (!IsRelationalProvider(provider))
         {
             return Array.Empty<CompletionEntry>();
         }
@@ -1035,6 +1035,11 @@ select column_name as COLUMN_NAME,
     private static string EscapeSqlLiteral(string value)
     {
         return value.Replace("'", "''");
+    }
+
+    private static bool IsRelationalProvider(DatabaseProviderDefinition provider)
+    {
+        return string.Equals(provider.Kind, "Relational", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string NormalizeCatalogIdentifier(DatabaseProviderDefinition provider, string value)

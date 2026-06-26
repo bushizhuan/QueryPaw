@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using SqlAnalyzer.Core.Models;
 using SqlAnalyzer.Core.Services;
 using SqlAnalyzer.Data.Common;
+using SqlAnalyzer.Data.Redis;
 
 namespace SqlAnalyzer.Data.Execution;
 
@@ -58,9 +59,11 @@ public sealed class SqlExecutionService : ISqlExecutionService
         [135] = "Json"
     };
     private readonly DbProviderRuntime _runtime;
+    private readonly RedisExecutionService _redisExecutionService;
     public SqlExecutionService(IDatabaseProviderCatalog providerCatalog)
     {
         _runtime = new DbProviderRuntime(providerCatalog);
+        _redisExecutionService = new RedisExecutionService(new RedisConnectionManager());
     }
 
     // 执行服务负责把“原始 SQL 文本”规范化成可执行语句序列，并把多语句、多结果集重新汇总回统一结果模型。
@@ -78,6 +81,12 @@ public sealed class SqlExecutionService : ISqlExecutionService
             return BuildMessageResult("No SQL supplied.");
         }
 
+        DatabaseProviderDefinition provider = _runtime.GetProvider(request.Connection);
+        if (string.Equals(provider.Name, "Redis", StringComparison.OrdinalIgnoreCase))
+        {
+            return await _redisExecutionService.ExecuteAsync(request, cancellationToken);
+        }
+
         IReadOnlyList<QueryStatementInfo> statements = SplitExecutableStatements(request.Sql);
         if (statements.Count == 0)
         {
@@ -86,10 +95,9 @@ public sealed class SqlExecutionService : ISqlExecutionService
         QueryStatementInfo firstStatement = statements[0];
         string executableSql = firstStatement.Sql;
 
-        DatabaseProviderDefinition provider = _runtime.GetProvider(request.Connection);
-        if (string.Equals(provider.Kind, "Document", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(provider.Kind, "Relational", StringComparison.OrdinalIgnoreCase))
         {
-            return BuildMessageResult("MongoDB execution migration is not finished yet.");
+            return BuildMessageResult($"{provider.DisplayName} execution migration is not finished yet.");
         }
 
         Stopwatch stopwatch = Stopwatch.StartNew();

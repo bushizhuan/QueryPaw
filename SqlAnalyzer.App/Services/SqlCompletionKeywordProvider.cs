@@ -135,6 +135,42 @@ public static class SqlCompletionKeywordProvider
         new("explain query plan", 58, "Explain SQLite execution plan")
     ];
 
+    private static readonly CompletionKeyword[] RedisKeywords =
+    [
+        new("get", 0, "Read the value of a key", "command"),
+        new("set", 1, "Set the value of a key", "command"),
+        new("del", 2, "Delete one or more keys", "command"),
+        new("exists", 3, "Check whether keys exist", "command"),
+        new("expire", 4, "Set a key timeout", "command"),
+        new("ttl", 5, "Read remaining key lifetime", "command"),
+        new("scan", 6, "Incrementally iterate keys", "command"),
+        new("type", 7, "Read the value type of a key", "command"),
+        new("mget", 8, "Read multiple string keys", "command"),
+        new("mset", 9, "Set multiple string keys", "command"),
+        new("incr", 10, "Increment an integer value", "command"),
+        new("decr", 11, "Decrement an integer value", "command"),
+        new("hget", 12, "Read a hash field", "command"),
+        new("hset", 13, "Set hash fields", "command"),
+        new("hgetall", 14, "Read all hash fields", "command"),
+        new("hdel", 15, "Delete hash fields", "command"),
+        new("hlen", 16, "Read hash field count", "command"),
+        new("lrange", 17, "Read a list range", "command"),
+        new("lpush", 18, "Push values to the head of a list", "command"),
+        new("rpush", 19, "Push values to the tail of a list", "command"),
+        new("lpop", 20, "Pop a value from the head of a list", "command"),
+        new("rpop", 21, "Pop a value from the tail of a list", "command"),
+        new("sadd", 22, "Add set members", "command"),
+        new("srem", 23, "Remove set members", "command"),
+        new("smembers", 24, "Read set members", "command"),
+        new("zadd", 25, "Add sorted-set members", "command"),
+        new("zrange", 26, "Read a sorted-set range", "command"),
+        new("zrem", 27, "Remove sorted-set members", "command"),
+        new("publish", 28, "Publish a message", "command"),
+        new("ping", 29, "Test server availability", "command"),
+        new("info", 30, "Read Redis server information", "command"),
+        new("dbsize", 31, "Read current database key count", "command")
+    ];
+
     private static readonly IReadOnlyDictionary<string, IReadOnlyList<CompletionKeyword>> ProviderProfiles =
         BuildProviderProfiles();
 
@@ -177,7 +213,8 @@ public static class SqlCompletionKeywordProvider
             ["KingbaseES"] = Merge(CommonKeywords, PostgreSqlFamilyKeywords),
             ["MySql"] = Merge(CommonKeywords, MySqlKeywords),
             ["MariaDB"] = Merge(CommonKeywords, MySqlKeywords),
-            ["SQLite"] = Merge(CommonKeywords, SqliteKeywords)
+            ["SQLite"] = Merge(CommonKeywords, SqliteKeywords),
+            ["Redis"] = RedisKeywords
         };
     }
 

@@ -24,7 +24,7 @@ public sealed class ExplorerMetadataService
                 IsConnected = true,
                 IsExpanded = true,
                 ProviderName = provider.Name,
-                HasUnloadedChildren = !string.Equals(provider.Kind, "Document", StringComparison.OrdinalIgnoreCase)
+                HasUnloadedChildren = IsRelationalProvider(provider)
             }
         ];
 
@@ -47,7 +47,7 @@ public sealed class ExplorerMetadataService
         CancellationToken cancellationToken = default)
     {
         LocalizationDictionarySnapshot localizationSnapshot = await _localizationResolver.GetSnapshotAsync(profile, cancellationToken: cancellationToken);
-        if (string.Equals(provider.Kind, "Document", StringComparison.OrdinalIgnoreCase))
+        if (!IsRelationalProvider(provider))
         {
             return Array.Empty<ObjectNode>();
         }
@@ -188,5 +188,10 @@ public sealed class ExplorerMetadataService
             ProviderName = providerName,
             HasUnloadedChildren = hasUnloadedChildren
         };
+    }
+
+    private static bool IsRelationalProvider(DatabaseProviderDefinition provider)
+    {
+        return string.Equals(provider.Kind, "Relational", StringComparison.OrdinalIgnoreCase);
     }
 }

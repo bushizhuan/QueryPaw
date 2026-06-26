@@ -1832,11 +1832,11 @@
                         </ComboBox>
                         <Grid ColumnDefinitions="120,*" ColumnSpacing="8">
                           <TextBlock Text="{Binding UiText.DriverFamily}" Foreground="#64748B"/>
-                          <TextBlock Grid.Column="1" Text="{Binding ConnectionEditorDraft.ProviderName}"/>
+                          <TextBlock Grid.Column="1" Text="{Binding SelectedProviderDriverFamily}"/>
                         </Grid>
                         <Grid ColumnDefinitions="120,*" ColumnSpacing="8">
                           <TextBlock Text="{Binding UiText.CapabilityLevel}" Foreground="#64748B"/>
-                          <TextBlock Grid.Column="1" Text="{Binding ConnectionEditorDraft.CapabilityLevel}"/>
+                          <TextBlock Grid.Column="1" Text="{Binding SelectedProviderCapabilityLevel}"/>
                         </Grid>
                       </StackPanel>
                     </Border>
@@ -1937,6 +1937,7 @@
                                   IsChecked="{Binding ConnectionEditorDraft.SavePassword, Mode=TwoWay}"
                                   IsEnabled="{Binding ConnectionEditorCanEditFields}"/>
                         <TextBox Watermark="{Binding UiText.Schema}"
+                                 IsVisible="{Binding IsConnectionSchemaVisible}"
                                  IsEnabled="{Binding ConnectionEditorCanEditFields}"
                                  Text="{Binding ConnectionEditorDraft.Schema, Mode=TwoWay}"/>
                       </StackPanel>

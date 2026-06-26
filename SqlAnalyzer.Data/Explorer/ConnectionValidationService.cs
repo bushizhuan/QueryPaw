@@ -2,6 +2,7 @@
 using SqlAnalyzer.Core.Models;
 using SqlAnalyzer.Core.Services;
 using SqlAnalyzer.Data.Common;
+using SqlAnalyzer.Data.Redis;
 
 namespace SqlAnalyzer.Data.Explorer;
 
@@ -9,14 +10,30 @@ public sealed class ConnectionValidationService : IConnectionValidationService
 {
     private static readonly TimeSpan ValidationTimeout = TimeSpan.FromSeconds(10);
     private readonly DbProviderRuntime _runtime;
+    private readonly RedisExecutionService _redisExecutionService;
     public ConnectionValidationService(IDatabaseProviderCatalog providerCatalog)
     {
         _runtime = new DbProviderRuntime(providerCatalog);
+        _redisExecutionService = new RedisExecutionService(new RedisConnectionManager());
     }
     public async Task<string> ValidateConnectionAsync(ConnectionProfile profile, CancellationToken cancellationToken = default)
     {
         DatabaseProviderDefinition provider = _runtime.GetProvider(profile);
-        if (string.Equals(provider.Kind, "Document", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(provider.Name, "Redis", StringComparison.OrdinalIgnoreCase))
+        {
+            using CancellationTokenSource redisTimeoutSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            redisTimeoutSource.CancelAfter(ValidationTimeout);
+            try
+            {
+                return await _redisExecutionService.ValidateConnectionAsync(profile, redisTimeoutSource.Token);
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                throw new TimeoutException($"Redis 连接测试超时，已等待 {ValidationTimeout.TotalSeconds:0} 秒。");
+            }
+        }
+
+        if (!string.Equals(provider.Kind, "Relational", StringComparison.OrdinalIgnoreCase))
         {
             return "文档型数据库暂不支持 SQL 连接测试。";
         }

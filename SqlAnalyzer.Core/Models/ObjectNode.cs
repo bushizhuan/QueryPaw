@@ -245,6 +245,7 @@ public sealed class ObjectNode
             "dameng" => "DM",
             "sqlite" => "SL",
             "mongodb" => "MG",
+            "redis" => "RD",
             _ => IsConnected ? "DB" : "db"
         };
     }
@@ -262,6 +263,7 @@ public sealed class ObjectNode
             "dameng" => "DamengLogo",
             "sqlite" => "SqliteLogo",
             "mongodb" => "MongoDbLogo",
+            "redis" => "Connection",
             _ => "Connection"
         };
     }
@@ -279,6 +281,7 @@ public sealed class ObjectNode
             "dameng" => "#1D4ED8",
             "sqlite" => "#2F80D8",
             "mongodb" => "#13AA52",
+            "redis" => "#DC382D",
             _ => IsConnected ? "#2F80D8" : "#94A3B8"
         };
     }
@@ -301,6 +304,7 @@ public sealed class ObjectNode
             "dameng" => "#EEF4FF",
             "sqlite" => "#EAF5FF",
             "mongodb" => "#ECFDF3",
+            "redis" => "#FFF1F0",
             _ => "#EAF5FF"
         };
     }
@@ -323,6 +327,7 @@ public sealed class ObjectNode
             "dameng" => "#BFD3FF",
             "sqlite" => "#B8D8F4",
             "mongodb" => "#BBF7D0",
+            "redis" => "#F4B2AE",
             _ => "#B8D8F4"
         };
     }

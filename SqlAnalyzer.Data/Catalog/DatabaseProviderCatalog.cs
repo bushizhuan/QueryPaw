@@ -229,6 +229,31 @@ public sealed class DatabaseProviderCatalog : IDatabaseProviderCatalog
         },
         new()
         {
+            Name = "Redis",
+            DisplayName = "Redis",
+            Kind = "KeyValue",
+            DriverFamily = "Redis",
+            SupportLevel = "Experimental",
+            RecommendedDriver = "StackExchange.Redis",
+            InvariantName = "StackExchange.Redis",
+            FactoryTypeName = "StackExchange.Redis.ConnectionMultiplexer, StackExchange.Redis",
+            DefaultManagedDriver = "StackExchange.Redis",
+            ConnectionTemplate = "{server}:{port}",
+            TestSql = "PING",
+            Capabilities = new ProviderCapabilities
+            {
+                SupportsExplain = false,
+                SupportsExportInsert = false,
+                SupportsDataEdit = false,
+                SupportsDirectTableAlter = false,
+                SupportsFunctions = false,
+                SupportsProcedures = false,
+                SupportsTriggers = false,
+                SupportsSequences = false
+            }
+        },
+        new()
+        {
             Name = "MongoDb",
             DisplayName = "MongoDB",
             Kind = "Document",

@@ -19,6 +19,7 @@ public static class ConnectionProfileUtilities
             "kingbasees" => 54321,
             "dameng" => 5236,
             "mongodb" => 27017,
+            "redis" => 6379,
             _ => null
         };
     }
@@ -228,6 +229,9 @@ public static class ConnectionProfileUtilities
 
     public static void ApplyProviderSelection(ConnectionProfile profile, DatabaseProviderDefinition provider)
     {
+        string previousProviderName = profile.ProviderName ?? string.Empty;
+        bool providerChanged = !string.Equals(previousProviderName, provider.Name, StringComparison.OrdinalIgnoreCase);
+
         profile.ProviderName = provider.Name;
         profile.CapabilityLevel = provider.SupportLevel;
 
@@ -247,7 +251,7 @@ public static class ConnectionProfileUtilities
             return;
         }
 
-        if (profile.Port <= 0)
+        if (providerChanged || profile.Port <= 0)
         {
             profile.Port = GetDefaultPort(provider.Name) ?? 0;
         }
@@ -262,6 +266,21 @@ public static class ConnectionProfileUtilities
             profile.EncryptedPassword = string.Empty;
             profile.SavePassword = false;
             return;
+        }
+
+        if (string.Equals(provider.Name, "Redis", StringComparison.OrdinalIgnoreCase))
+        {
+            profile.Port = GetDefaultPort(provider.Name) ?? 6379;
+            profile.Schema = string.Empty;
+            if (providerChanged)
+            {
+                profile.UserName = string.Empty;
+            }
+
+            if (providerChanged || !int.TryParse(profile.Database?.Trim(), out int redisDatabaseIndex) || redisDatabaseIndex < 0)
+            {
+                profile.Database = "0";
+            }
         }
 
         if (string.IsNullOrWhiteSpace(profile.AuthenticationMode))

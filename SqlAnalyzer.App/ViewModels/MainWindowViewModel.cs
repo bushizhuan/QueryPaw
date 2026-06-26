@@ -281,6 +281,8 @@ public class MainWindowViewModel : ViewModelBase
 
 	public bool IsSqliteProfileSelected => string.Equals(_connectionEditorDraft?.ProviderName, "SQLite", StringComparison.OrdinalIgnoreCase);
 
+	public bool IsRedisProfileSelected => string.Equals(_connectionEditorDraft?.ProviderName, "Redis", StringComparison.OrdinalIgnoreCase);
+
 	public bool IsServerDatabaseProfileSelected => !IsOracleProfileSelected && !IsMongoProfileSelected && !IsSqliteProfileSelected;
 
 	public bool IsGenericConnectionFormVisible => IsServerDatabaseProfileSelected || IsSqliteProfileSelected;
@@ -289,15 +291,27 @@ public class MainWindowViewModel : ViewModelBase
 
 	public bool IsConnectionAuthVisible => !IsSqliteProfileSelected;
 
+	public bool IsConnectionSchemaVisible => !IsSqliteProfileSelected && !IsRedisProfileSelected;
+
 	public bool IsOracleHostMode => IsOracleProfileSelected && string.Equals(_connectionEditorDraft?.OracleConnectionMode ?? "HostService", "HostService", StringComparison.OrdinalIgnoreCase);
 
 	public bool IsOracleTnsMode => IsOracleProfileSelected && string.Equals(_connectionEditorDraft?.OracleConnectionMode ?? "HostService", "Tns", StringComparison.OrdinalIgnoreCase);
 
 	public string SelectedProviderDisplayName => Providers.FirstOrDefault((DatabaseProviderDefinition item) => string.Equals(item.Name, _connectionEditorDraft?.ProviderName, StringComparison.OrdinalIgnoreCase))?.DisplayName ?? _connectionEditorDraft?.ProviderName ?? string.Empty;
 
-	public string ServerFieldLabel => IsMongoProfileSelected ? UiText.Host : UiText.Server;
+	public string SelectedProviderDriverFamily => Providers.FirstOrDefault((DatabaseProviderDefinition item) => string.Equals(item.Name, _connectionEditorDraft?.ProviderName, StringComparison.OrdinalIgnoreCase))?.DriverFamily ?? string.Empty;
 
-	public string DatabaseFieldLabel => IsSqliteProfileSelected ? UiText.DatabaseFile : IsMongoProfileSelected ? UiText.MongoDatabaseAuthSource : UiText.Database;
+	public string SelectedProviderCapabilityLevel => Providers.FirstOrDefault((DatabaseProviderDefinition item) => string.Equals(item.Name, _connectionEditorDraft?.ProviderName, StringComparison.OrdinalIgnoreCase))?.SupportLevel ?? _connectionEditorDraft?.CapabilityLevel ?? string.Empty;
+
+	public string ServerFieldLabel => IsMongoProfileSelected || IsRedisProfileSelected ? UiText.Host : UiText.Server;
+
+	public string DatabaseFieldLabel => IsSqliteProfileSelected
+		? UiText.DatabaseFile
+		: IsMongoProfileSelected
+			? UiText.MongoDatabaseAuthSource
+			: IsRedisProfileSelected
+				? UiText.RedisDatabaseIndex
+				: UiText.Database;
 
 	public bool HasResults => ResultSets.Count > 0;
 
@@ -1702,6 +1716,7 @@ public class MainWindowViewModel : ViewModelBase
 		}
 
 		ConnectionProfileUtilities.ApplyProviderSelection(_connectionEditorDraft, provider);
+		_connectionEditorDraft = CloneConnectionProfile(_connectionEditorDraft);
 		NotifyConnectionEditorStateChanged();
 		RefreshOracleUiState();
 	}
@@ -1877,8 +1892,8 @@ public class MainWindowViewModel : ViewModelBase
 		{
 			rootNode.IsConnected = true;
 			rootNode.IsExpanded = true;
-			bool isDocumentProvider = string.Equals(_providerCatalog.Find(normalizedProfile.ProviderName)?.Kind, "Document", StringComparison.OrdinalIgnoreCase);
-			if (!isDocumentProvider && rootNode.Children.Count == 0)
+			bool isRelationalProvider = string.Equals(_providerCatalog.Find(normalizedProfile.ProviderName)?.Kind, "Relational", StringComparison.OrdinalIgnoreCase);
+			if (isRelationalProvider && rootNode.Children.Count == 0)
 			{
 				rootNode.IsLoaded = false;
 				rootNode.HasUnloadedChildren = true;

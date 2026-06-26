@@ -43,7 +43,7 @@ public sealed class DatabaseExplorerService : IDatabaseExplorerService
     public async Task<IReadOnlyList<ObjectNode>> LoadChildNodesAsync(ConnectionProfile profile, ObjectNode node, CancellationToken cancellationToken = default)
     {
         DatabaseProviderDefinition provider = _runtime.GetProvider(profile);
-        if (string.Equals(provider.Kind, "Document", StringComparison.OrdinalIgnoreCase))
+        if (!IsRelationalProvider(provider))
         {
             return Array.Empty<ObjectNode>();
         }
@@ -117,7 +117,7 @@ public sealed class DatabaseExplorerService : IDatabaseExplorerService
     public async Task<IReadOnlyList<string>> LoadSchemasAsync(ConnectionProfile profile, CancellationToken cancellationToken = default)
     {
         DatabaseProviderDefinition provider = _runtime.GetProvider(profile);
-        if (string.Equals(provider.Kind, "Document", StringComparison.OrdinalIgnoreCase))
+        if (!IsRelationalProvider(provider))
         {
             return Array.Empty<string>();
         }
@@ -137,7 +137,7 @@ public sealed class DatabaseExplorerService : IDatabaseExplorerService
         }
 
         DatabaseProviderDefinition provider = _runtime.GetProvider(profile);
-        if (string.Equals(provider.Kind, "Document", StringComparison.OrdinalIgnoreCase))
+        if (!IsRelationalProvider(provider))
         {
             return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
@@ -883,6 +883,10 @@ select t.name as TABLE_NAME,
         connection.ConnectionString = _runtime.BuildConnectionString(provider, profile);
         await connection.OpenAsync(cancellationToken);
         return connection;
+    }
+    private static bool IsRelationalProvider(DatabaseProviderDefinition provider)
+    {
+        return string.Equals(provider.Kind, "Relational", StringComparison.OrdinalIgnoreCase);
     }
     private static string BuildScopeKey(ConnectionProfile profile, string suffix)
     {

@@ -90,6 +90,7 @@
     "Server":  "Server",
     "Database":  "Database / SID / Service",
     "DatabaseFile":  "Database File",
+    "RedisDatabaseIndex":  "DB Index",
     "Schema":  "Schema",
     "DatabaseConnection":  "Database Connection",
     "CapabilityLevel":  "Capability Level",

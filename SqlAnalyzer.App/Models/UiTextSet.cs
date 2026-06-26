@@ -93,6 +93,7 @@ public sealed class UiTextSet
     public string Server { get; init; } = string.Empty;
     public string Database { get; init; } = string.Empty;
     public string DatabaseFile { get; init; } = string.Empty;
+    public string RedisDatabaseIndex { get; init; } = string.Empty;
     public string Schema { get; init; } = string.Empty;
     public string DatabaseConnection { get; init; } = string.Empty;
     public string CapabilityLevel { get; init; } = string.Empty;
