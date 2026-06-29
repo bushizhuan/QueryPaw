@@ -3886,9 +3886,8 @@ public class MainWindowViewModel : ViewModelBase
 		{
 			return Task.FromResult<IReadOnlyList<CompletionItem>>(Array.Empty<CompletionItem>());
 		}
-		bool hasSelectedSchema = !string.IsNullOrWhiteSpace(selectedSchema) && !string.Equals(selectedSchema, "(Default)", StringComparison.OrdinalIgnoreCase);
-		string preferredSchema = hasSelectedSchema ? selectedSchema : string.Empty;
 		IReadOnlyList<CompletionController.CompletionRelationReference> normalizedRelations = CompletionMetadataRules.NormalizeRelationReferences(relationReferences);
+		string preferredSchema = ResolveCompletionPreferredSchema(selectedSchema, completionContext, qualifier, resolvedObjectName, normalizedRelations);
 		string? preferredObject = CompletionMetadataRules.ResolvePreferredObject(completionContext, resolvedObjectName, singleRelationName);
 		return BuildCompletionItemsCoreAsync(
 			normalizedPrefix,
@@ -3902,6 +3901,62 @@ public class MainWindowViewModel : ViewModelBase
 			normalizedRelations,
 			qualifier,
 			cancellationToken);
+	}
+
+	private static string ResolveCompletionPreferredSchema(
+		string selectedSchema,
+		string completionContext,
+		string? qualifier,
+		string? resolvedObjectName,
+		IReadOnlyList<CompletionController.CompletionRelationReference> relationReferences)
+	{
+		string preferredSchema = NormalizeCompletionSelectedSchema(selectedSchema);
+		if (CompletionMetadataRules.IsRelationContext(completionContext) && !string.IsNullOrWhiteSpace(qualifier))
+		{
+			return qualifier.Trim();
+		}
+
+		if (!CompletionMetadataRules.IsColumnContext(completionContext) || relationReferences.Count == 0)
+		{
+			return preferredSchema;
+		}
+
+		CompletionController.CompletionRelationReference? relation = FindCompletionRelationReference(relationReferences, qualifier, resolvedObjectName);
+		return !string.IsNullOrWhiteSpace(relation?.SchemaName)
+			? relation.SchemaName.Trim()
+			: preferredSchema;
+	}
+
+	private static CompletionController.CompletionRelationReference? FindCompletionRelationReference(
+		IReadOnlyList<CompletionController.CompletionRelationReference> relationReferences,
+		string? qualifier,
+		string? resolvedObjectName)
+	{
+		foreach (CompletionController.CompletionRelationReference relation in relationReferences)
+		{
+			if (!string.IsNullOrWhiteSpace(qualifier) &&
+			    ((!string.IsNullOrWhiteSpace(relation.Alias) && string.Equals(relation.Alias, qualifier, StringComparison.OrdinalIgnoreCase)) ||
+			     string.Equals(relation.TableName, qualifier, StringComparison.OrdinalIgnoreCase)))
+			{
+				return relation;
+			}
+
+			if (!string.IsNullOrWhiteSpace(resolvedObjectName) &&
+			    string.Equals(relation.TableName, resolvedObjectName, StringComparison.OrdinalIgnoreCase))
+			{
+				return relation;
+			}
+		}
+
+		return null;
+	}
+
+	private static string NormalizeCompletionSelectedSchema(string selectedSchema)
+	{
+		return !string.IsNullOrWhiteSpace(selectedSchema) &&
+		       !string.Equals(selectedSchema, "(Default)", StringComparison.OrdinalIgnoreCase)
+			? selectedSchema
+			: string.Empty;
 	}
 
 	public async Task<IReadOnlyList<CompletionEntry>> SearchRelationCandidatesAsync(string prefix, ConnectionProfile? documentConnection, string selectedSchema, CancellationToken cancellationToken = default(CancellationToken))
@@ -3953,9 +4008,8 @@ public class MainWindowViewModel : ViewModelBase
 		{
 			return Array.Empty<CompletionItem>();
 		}
-		bool hasSelectedSchema = !string.IsNullOrWhiteSpace(selectedSchema) && !string.Equals(selectedSchema, "(Default)", StringComparison.OrdinalIgnoreCase);
-		string preferredSchema = hasSelectedSchema ? selectedSchema : string.Empty;
 		IReadOnlyList<CompletionController.CompletionRelationReference> normalizedRelations = CompletionMetadataRules.NormalizeRelationReferences(relationReferences);
+		string preferredSchema = ResolveCompletionPreferredSchema(selectedSchema, completionContext, qualifier, resolvedObjectName, normalizedRelations);
 		string? preferredObject = CompletionMetadataRules.ResolvePreferredObject(completionContext, resolvedObjectName, singleRelationName);
 		List<CompletionItem> completionItems = SqlCompletionKeywordProvider.BuildItems(normalizedPrefix, completionContext, documentConnection?.ProviderName).ToList();
 		if (documentConnection != null)

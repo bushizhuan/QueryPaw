@@ -37,7 +37,9 @@ public sealed class CompletionController
         IReadOnlyList<CompletionRelationReference>? Relations = null,
         string? Qualifier = null)
     {
-        public bool AllowEmptyPrefix => string.Equals(Kind, "member-column", StringComparison.OrdinalIgnoreCase);
+        public bool AllowEmptyPrefix =>
+            string.Equals(Kind, "member-column", StringComparison.OrdinalIgnoreCase) ||
+            (string.Equals(Kind, "relation", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(Qualifier));
 
         public IReadOnlyList<CompletionRelationReference> RelationReferences => Relations ?? Array.Empty<CompletionRelationReference>();
 
@@ -129,6 +131,11 @@ public sealed class CompletionController
         string? qualifier = TryGetQualifier(statementText, start);
         if (!string.IsNullOrWhiteSpace(qualifier))
         {
+            if (IsQualifiedRelationContext(statementText, start, qualifier))
+            {
+                return new CompletionContextInfo("relation", prefix, null, singleRelationName, relations, qualifier);
+            }
+
             string? resolvedObjectName = ResolveQualifierObjectName(relations, qualifier);
             return new CompletionContextInfo("member-column", prefix, resolvedObjectName ?? qualifier, singleRelationName, relations, qualifier);
         }
@@ -528,6 +535,35 @@ public sealed class CompletionController
         }
 
         return end > start ? text[start..end].Trim() : null;
+    }
+
+    private static bool IsQualifiedRelationContext(string text, int replacementStart, string qualifier)
+    {
+        int dotIndex = replacementStart - 1;
+        int qualifierStart = dotIndex - qualifier.Length;
+        if (qualifierStart < 0)
+        {
+            return false;
+        }
+
+        string beforeQualifier = text[..qualifierStart].TrimEnd();
+        return EndsWithSqlKeyword(beforeQualifier, "from") ||
+               EndsWithSqlKeyword(beforeQualifier, "join") ||
+               EndsWithSqlKeyword(beforeQualifier, "update") ||
+               EndsWithSqlKeyword(beforeQualifier, "into") ||
+               EndsWithSqlKeyword(beforeQualifier, "table");
+    }
+
+    private static bool EndsWithSqlKeyword(string text, string keyword)
+    {
+        if (text.Length < keyword.Length ||
+            !text.AsSpan(text.Length - keyword.Length, keyword.Length).Equals(keyword, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        char previous = text.Length > keyword.Length ? text[text.Length - keyword.Length - 1] : ' ';
+        return !IsIdentifierPart(previous);
     }
 
     private static bool IsSelectProjectionContext(string statementText, int caret)
