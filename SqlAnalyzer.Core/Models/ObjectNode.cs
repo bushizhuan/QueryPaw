@@ -36,7 +36,7 @@ public sealed class ObjectNode
                 return Name;
             }
 
-            return $"{DisplayName} ({Name})";
+            return $"{Name} ({DisplayName})";
         }
     }
 
