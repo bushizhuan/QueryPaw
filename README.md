@@ -19,7 +19,9 @@ QueryPaw 是一款开源 SQL 查询分析器和数据库元数据工具，使用
 - 当前发布包：Windows x64 便携版，解压后运行 `QueryPaw.exe`
 - 许可证：[MIT License](LICENSE)
 
-截图和演示 GIF 会在后续补充。
+### 软件演示
+
+![QueryPaw 软件操作演示](docs/assets/querypaw-demo.gif)
 
 ### 适合谁
 
@@ -138,7 +140,9 @@ It is not trying to be another heavyweight all-purpose database client. QueryPaw
 - Current package: Windows x64 portable package. Unzip and run `QueryPaw.exe`.
 - License: [MIT License](LICENSE)
 
-Screenshots and demo GIFs will be added soon.
+### Demo
+
+![QueryPaw demo](docs/assets/querypaw-demo.gif)
 
 ### Who It Is For
 
