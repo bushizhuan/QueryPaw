@@ -63,6 +63,7 @@ QueryPaw 的一个核心目标，是让数据库查询更贴近业务语言，�
 - KingbaseES
 - Dameng
 - MongoDB
+- Redis
 
 部分数据库需要用户自行安装客户端库，或手动配置驱动路径。本仓库不包含专有数据库驱动。
 
@@ -184,6 +185,7 @@ The provider catalog currently includes:
 - KingbaseES
 - Dameng
 - MongoDB
+- Redis
 
 Some providers require user-installed client libraries or manually configured driver paths. Proprietary database drivers are not bundled in this repository.
 
