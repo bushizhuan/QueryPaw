@@ -2,7 +2,7 @@
 
 [中文](#中文) | [English](#english)
 
-[![Release: v1.0.0](https://img.shields.io/badge/release-v1.0.0-2ea44f?style=flat-square)](https://github.com/bushizhuan/QueryPaw/releases/latest)
+[![Release: v1.1.0](https://img.shields.io/badge/release-v1.1.0-2ea44f?style=flat-square)](https://github.com/bushizhuan/QueryPaw/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?style=flat-square)](https://dotnet.microsoft.com/)
 [![Avalonia](https://img.shields.io/badge/UI-Avalonia-8B44F7?style=flat-square)](https://avaloniaui.net/)
@@ -68,7 +68,7 @@ QueryPaw 的一个核心目标，是让数据库查询更贴近业务语言，�
 
 ### 当前状态
 
-QueryPaw 已发布首个公开版本 `v1.0.0`，可以用于日常试用、开发测试和兼容性反馈。项目仍在快速迭代中，欢迎通过 Issue 反馈数据库兼容问题、界面问题和真实使用场景。
+QueryPaw 当前最新版本为 `v1.1.0`，可以用于日常试用、开发测试和兼容性反馈。项目仍在快速迭代中，欢迎通过 Issue 反馈数据库兼容问题、界面问题和真实使用场景。
 
 后续方向请查看 [ROADMAP.md](ROADMAP.md)。架构重构记录请查看 [REFACTOR-PLAN.md](REFACTOR-PLAN.md)。
 
@@ -189,7 +189,7 @@ Some providers require user-installed client libraries or manually configured dr
 
 ### Project Status
 
-QueryPaw has its first public `v1.0.0` release and is ready for daily trial use, development testing, and compatibility feedback. The project is still evolving quickly, so issue reports and real-world database compatibility notes are very welcome.
+QueryPaw `v1.1.0` is the latest release and is ready for daily trial use, development testing, and compatibility feedback. The project is still evolving quickly, so issue reports and real-world database compatibility notes are very welcome.
 
 See [ROADMAP.md](ROADMAP.md) for planned work and [REFACTOR-PLAN.md](REFACTOR-PLAN.md) for architecture notes.
 
